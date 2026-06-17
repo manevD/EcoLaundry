@@ -1,0 +1,136 @@
+﻿@using EcoLaundry.Entities
+@model LaundryCategory
+
+@{
+    ViewData["Title"] = "Измени категорија";
+}
+
+
+<div class="container-fluid">
+
+
+    <div class="card shadow-sm">
+
+
+        <div class="card-body">
+
+
+            <h4 class="mb-3">
+                Измени категорија
+            </h4>
+
+
+
+            <form asp-action="Edit" method="post">
+
+
+                <input type="hidden"
+                       asp-for="Id" />
+
+
+
+                <!-- NAME -->
+
+                <div class="mb-3">
+
+
+                    <label asp-for="Name"
+                           class="form-label">
+
+                        Име на категорија
+
+                    </label>
+
+
+
+                    <input asp-for="Name"
+                           class="form-control form-control-lg"
+                           placeholder="пример: Сако" />
+
+
+
+                    <span asp-validation-for="Name"
+                          class="text-danger">
+                    </span>
+
+
+                </div>
+
+
+
+
+
+                <!-- ACTIVE -->
+
+
+                <div class="form-check form-switch mb-4">
+
+
+                    <input asp-for="Active"
+                           class="form-check-input"
+                           style="width:50px;height:25px;" />
+
+
+                    <label asp-for="Active"
+                           class="form-check-label ms-2">
+
+                        Активна категорија
+
+                    </label>
+
+
+                </div>
+
+
+
+
+
+
+
+                <!-- BUTTONS -->
+
+
+                <div class="d-grid gap-2">
+
+
+                    <button type="submit"
+                            class="btn btn-primary btn-lg">
+
+                        💾 Зачувај
+
+                    </button>
+
+
+
+                    <a asp-action="Index"
+                       class="btn btn-outline-secondary">
+
+                        Назад
+
+                    </a>
+
+
+                </div>
+
+
+
+            </form>
+
+
+        </div>
+
+
+    </div>
+
+
+</div>
+
+
+
+
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+}

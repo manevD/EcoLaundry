@@ -1,0 +1,298 @@
+﻿@using EcoLaundry.Entities
+@model Customer
+
+@{
+    ViewData["Title"] = "Детали клиент";
+}
+
+
+<div class="container-fluid">
+
+
+    <!-- CUSTOMER CARD -->
+
+    <div class="card shadow-sm mb-3">
+
+        <div class="card-body">
+
+
+            <div class="d-flex justify-content-between align-items-start">
+
+
+                <div>
+
+                    <h4 class="mb-1">
+                        @Model.FirstName @Model.LastName
+                    </h4>
+
+
+                    <div class="text-muted">
+
+                        📞 @Model.Phone
+
+                    </div>
+
+
+                    @if (!string.IsNullOrEmpty(Model.Email))
+                    {
+                        <div class="text-muted">
+
+                            ✉️ @Model.Email
+
+                        </div>
+                    }
+
+
+                </div>
+
+
+
+                <a asp-action="Edit"
+                   asp-route-id="@Model.Id"
+                   class="btn btn-outline-secondary btn-sm">
+
+                    Измени
+
+                </a>
+
+
+            </div>
+
+
+
+            @if (!string.IsNullOrEmpty(Model.Notes))
+            {
+                <hr />
+
+                <div>
+
+                    <strong>Забелешка:</strong>
+
+                    <br />
+
+                    @Model.Notes
+
+                </div>
+            }
+
+
+        </div>
+
+    </div>
+
+
+
+
+
+    <!-- ACTIONS -->
+
+
+    <div class="d-grid gap-2 mb-3">
+
+
+        <a asp-controller="Orders"
+           asp-action="Create"
+           asp-route-customerId="@Model.Id"
+           class="btn btn-primary btn-lg">
+
+            + Нова нарачка
+
+        </a>
+
+
+        <a asp-action="Index"
+           class="btn btn-outline-secondary">
+
+            Назад
+
+        </a>
+
+
+    </div>
+
+
+
+
+
+
+    <!-- ORDERS -->
+
+
+    <h5 class="mb-3">
+
+        Историја на нарачки
+
+        <span class="badge bg-secondary">
+
+            @Model.Orders.Count
+
+        </span>
+
+    </h5>
+
+
+
+
+
+    @if (!Model.Orders.Any())
+    {
+
+        <div class="alert alert-info">
+
+            Клиентот нема нарачки.
+
+        </div>
+
+    }
+
+    else
+    {
+
+
+        @foreach (var order in Model.Orders
+                      .OrderByDescending(x => x.ReceivedDate))
+        {
+
+
+            <div class="card shadow-sm mb-3">
+
+
+                <div class="card-body">
+
+
+                    <div class="d-flex justify-content-between">
+
+
+                        <h5>
+
+                            #@order.OrderNumber
+
+                        </h5>
+
+
+
+                        @switch (order.Status)
+                        {
+                            case OrderStatus.Received:
+
+                                <span class="badge bg-warning">
+                                    Примено
+                                </span>
+
+                                break;
+
+
+                            case OrderStatus.InProgress:
+
+                                <span class="badge bg-info">
+                                    Во обработка
+                                </span>
+
+                                break;
+
+
+                            case OrderStatus.Finished:
+
+                                <span class="badge bg-success">
+                                    Завршено
+                                </span>
+
+                                break;
+                        }
+
+
+                    </div>
+
+
+
+                    <div class="text-muted small">
+
+                        📅 @order.ReceivedDate.ToString("dd.MM.yyyy HH:mm")
+
+                    </div>
+
+
+
+                    <hr />
+
+
+
+                    @foreach (var item in order.Items)
+                    {
+                        <div>
+
+                            ✓ @item.LaundryCategory.Name
+
+                            x @item.Quantity
+
+                        </div>
+                    }
+
+
+
+                    <hr />
+
+
+
+                    <div class="d-flex justify-content-between">
+
+
+                        <div>
+
+                            Цена:
+
+                            <strong>
+
+                                @(order.TotalPrice.HasValue
+                                    ? $"{order.TotalPrice} ден"
+                                    : "не внесена")
+
+                            </strong>
+
+
+                        </div>
+
+
+
+                        @if (order.IsExpress)
+                        {
+                            <span class="badge bg-danger">
+
+                                EXPRESS
+
+                            </span>
+                        }
+
+
+                    </div>
+
+
+
+
+                    <div class="mt-3">
+
+
+                        <a asp-controller="Orders"
+                           asp-action="Details"
+                           asp-route-id="@order.Id"
+                           class="btn btn-outline-primary btn-sm w-100">
+
+                            Отвори
+
+                        </a>
+
+
+                    </div>
+
+
+                </div>
+
+
+            </div>
+
+        }
+
+    }
+
+
+</div>

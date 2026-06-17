@@ -1,0 +1,220 @@
+﻿@using EcoLaundry.Entities
+@model Customer
+
+@{
+    ViewData["Title"] = "Измени клиент";
+}
+
+
+<div class="container-fluid">
+
+
+    <div class="card shadow-sm">
+
+        <div class="card-body">
+
+
+            <h4 class="mb-3">
+                Измени клиент
+            </h4>
+
+
+
+            <form asp-action="Edit" method="post">
+
+
+                <input type="hidden"
+                       asp-for="Id" />
+
+
+
+                <!-- FIRST NAME -->
+
+                <div class="mb-3">
+
+                    <label asp-for="FirstName"
+                           class="form-label">
+                        Име
+                    </label>
+
+
+                    <input asp-for="FirstName"
+                           class="form-control form-control-lg"
+                           placeholder="Име" />
+
+
+                    <span asp-validation-for="FirstName"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+
+
+
+
+                <!-- LAST NAME -->
+
+                <div class="mb-3">
+
+                    <label asp-for="LastName"
+                           class="form-label">
+                        Презиме
+                    </label>
+
+
+                    <input asp-for="LastName"
+                           class="form-control form-control-lg"
+                           placeholder="Презиме" />
+
+
+                    <span asp-validation-for="LastName"
+                          class="text-danger">
+                    </span>
+
+                </div>
+
+
+
+
+
+
+                <!-- PHONE -->
+
+                <div class="mb-3">
+
+
+                    <label asp-for="Phone"
+                           class="form-label">
+                        Телефон
+                    </label>
+
+
+                    <input asp-for="Phone"
+                           type="tel"
+                           class="form-control form-control-lg"
+                           placeholder="070123456" />
+
+
+                    <span asp-validation-for="Phone"
+                          class="text-danger">
+                    </span>
+
+
+                </div>
+
+
+
+
+
+
+
+                <!-- EMAIL -->
+
+                <div class="mb-3">
+
+
+                    <label asp-for="Email"
+                           class="form-label">
+                        Email
+                    </label>
+
+
+                    <input asp-for="Email"
+                           type="email"
+                           class="form-control"
+                           placeholder="email@example.com" />
+
+
+                    <span asp-validation-for="Email"
+                          class="text-danger">
+                    </span>
+
+
+                </div>
+
+
+
+
+
+
+
+                <!-- NOTES -->
+
+
+                <div class="mb-3">
+
+
+                    <label asp-for="Notes"
+                           class="form-label">
+
+                        Забелешка
+
+                    </label>
+
+
+
+                    <textarea asp-for="Notes"
+                              rows="4"
+                              class="form-control"
+                              placeholder="Дополнителни информации...">
+                    </textarea>
+
+
+
+                </div>
+
+
+
+
+
+
+
+
+                <!-- BUTTONS -->
+
+
+                <div class="d-grid gap-2">
+
+
+                    <button type="submit"
+                            class="btn btn-primary btn-lg">
+
+                        💾 Зачувај
+
+                    </button>
+
+
+
+                    <a asp-action="Details"
+                       asp-route-id="@Model.Id"
+                       class="btn btn-outline-secondary">
+
+                        Назад
+
+                    </a>
+
+
+                </div>
+
+
+
+
+            </form>
+
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+}

@@ -1,0 +1,403 @@
+﻿@using EcoLaundry.Entities
+@model IEnumerable<Order>
+
+@{
+    ViewData["Title"] = "Нарачки";
+
+    string filter = ViewBag.Filter ?? "active";
+
+    var orders =
+        Model ?? Enumerable.Empty<Order>();
+}
+
+
+<div class="container-fluid">
+
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+
+        <h4 class="mb-0">
+            Нарачки
+        </h4>
+
+
+        <a asp-action="Create"
+           class="btn btn-primary btn-sm">
+
+            + Нова
+
+        </a>
+
+    </div>
+
+
+
+
+
+    <!-- FILTER -->
+
+    <div class="btn-group w-100 mb-3">
+
+        <a asp-action="Index"
+           asp-route-filter="active"
+           class="btn @(filter == "active" ? "btn-primary" : "btn-outline-primary")">
+
+            Активни
+
+        </a>
+
+
+        <a asp-action="Index"
+           asp-route-filter="finished"
+           class="btn @(filter == "finished" ? "btn-primary" : "btn-outline-primary")">
+
+            Завршени
+
+        </a>
+
+
+        <a asp-action="Index"
+           asp-route-filter="all"
+           class="btn @(filter == "all" ? "btn-primary" : "btn-outline-primary")">
+
+            Сите
+
+        </a>
+
+    </div>
+
+
+
+
+
+    <!-- SEARCH -->
+
+    <input type="text"
+           id="orderSearch"
+           class="form-control form-control-lg mb-3"
+           placeholder="🔍 Барај клиент, телефон, облека..." />
+
+
+
+
+
+
+
+    @if (!orders.Any())
+    {
+        <div class="alert alert-info text-center">
+            Нема нарачки
+        </div>
+    }
+
+
+
+
+
+
+    @foreach (var order in orders)
+    {
+
+        <div class="card shadow-sm mb-3 order-card">
+
+
+            <div class="card-body">
+
+
+
+                <!-- HEADER -->
+
+                <div class="d-flex justify-content-between">
+
+
+                    <div>
+
+                        <h5 class="mb-1">
+                            #@(order.OrderNumber ?? "-")
+                        </h5>
+
+
+                        <strong>
+
+                            @(order.Customer != null
+                                ? $"{order.Customer.FirstName} {order.Customer.LastName}"
+                                : "Непознат клиент")
+
+                        </strong>
+
+
+                        <br />
+
+
+                        @if (order.Customer != null)
+                        {
+                            <small class="text-muted">
+
+                                📞 @order.Customer.Phone
+
+                            </small>
+                        }
+
+                    </div>
+
+
+
+
+
+                    <div class="text-end">
+
+
+                        @if (order.IsExpress)
+                        {
+                            <span class="badge bg-danger">
+                                🔥 EXPRESS
+                            </span>
+                        }
+
+
+                        <div class="mt-2">
+
+                            <strong>
+
+                                @(order.TotalPrice.HasValue
+                                    ? order.TotalPrice + " ден"
+                                    : "-")
+
+                            </strong>
+
+                        </div>
+
+
+                    </div>
+
+
+                </div>
+
+
+
+
+
+
+
+
+                <hr class="my-2" />
+
+
+
+                <!-- ITEMS -->
+                @foreach (var item in order.Items ?? Enumerable.Empty<OrderItem>())
+                {
+
+
+                    <div class="d-flex justify-content-between">
+
+
+                        <div>
+
+                            ✓ @(item.LaundryCategory?.Name
+                                                            ?? "Непознато")
+
+
+                            <span class="badge bg-secondary">
+
+                                x @item.Quantity
+
+                            </span>
+
+
+                        </div>
+
+
+
+                        <div class="text-end">
+
+
+                            <strong>
+
+                                @(item.Quantity * item.Price) ден
+
+                            </strong>
+
+
+                            <br />
+
+
+                            <small class="text-muted">
+
+                                @item.Quantity x @item.Price
+
+                            </small>
+
+
+                        </div>
+
+
+                    </div>
+
+
+                }
+
+
+
+
+
+
+
+
+
+                <hr class="my-2" />
+
+
+
+
+
+                <!-- DATE + STATUS -->
+
+
+                <div class="d-flex justify-content-between">
+
+
+                    <span>
+
+                        📅 @order.ReceivedDate.ToString("dd.MM HH:mm")
+
+                    </span>
+
+
+
+
+
+                    <span>
+
+
+                        @switch (order.Status)
+                        {
+
+                            case OrderStatus.Received:
+
+                                <span class="badge bg-warning">
+                                    Примено
+                                </span>
+
+                                break;
+
+
+
+                            case OrderStatus.InProgress:
+
+                                <span class="badge bg-info">
+                                    Во работа
+                                </span>
+
+                                break;
+
+
+
+                            case OrderStatus.Finished:
+
+                                <span class="badge bg-success">
+                                    Завршено
+                                </span>
+
+                                break;
+
+                        }
+
+
+                    </span>
+
+
+                </div>
+
+
+
+
+
+
+
+
+                <!-- BUTTONS -->
+
+
+                <div class="d-flex gap-2 mt-3">
+
+
+                    <a asp-action="Details"
+                       asp-route-id="@order.Id"
+                       class="btn btn-outline-primary btn-sm flex-fill">
+
+                        Детали
+
+                    </a>
+
+
+
+                    <a asp-action="Edit"
+                       asp-route-id="@order.Id"
+                       class="btn btn-outline-secondary btn-sm flex-fill">
+
+                        Измени
+
+                    </a>
+
+
+                </div>
+
+
+
+            </div>
+
+
+        </div>
+
+
+    }
+
+
+
+</div>
+
+
+
+
+
+
+
+
+
+@section Scripts {
+
+    <script>
+
+
+        document
+            .getElementById("orderSearch")
+            ?.addEventListener("keyup", function(){
+
+
+                let value =
+                    this.value.toLowerCase();
+
+
+
+                document
+                    .querySelectorAll(".order-card")
+                    .forEach(card => {
+
+
+                        card.style.display =
+                            card.innerText
+                                .toLowerCase()
+                                .includes(value)
+                                ? ""
+                                : "none";
+
+                    });
+
+
+            });
+
+
+    </script>
+
+}

@@ -1,0 +1,161 @@
+@page
+@model LoginModel
+
+@{
+    ViewData["Title"] = "Најава";
+}
+
+<style>
+
+    .login-card {
+        border: none;
+        border-radius: 24px;
+        box-shadow: 0 4px 20px rgba(0,0,0,.08);
+    }
+
+    .form-control {
+        height: 55px;
+        border-radius: 14px;
+    }
+
+    .btn-login {
+        height: 55px;
+        border-radius: 14px;
+        font-weight: 600;
+    }
+
+</style>
+
+<div class="container mt-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-md-5">
+
+            <div class="card login-card">
+
+                <div class="card-body p-4">
+
+                    <div class="text-center mb-4">
+
+                        <h2 class="fw-bold">
+
+                            🔐 Најава
+
+                        </h2>
+
+                        <small class="text-muted">
+
+                            Најавете се во системот
+
+                        </small>
+
+                    </div>
+
+
+                    <form id="account"
+                          method="post">
+
+                        <div asp-validation-summary="ModelOnly"
+                             class="text-danger mb-3"
+                             role="alert">
+                        </div>
+
+
+                        <!-- EMAIL -->
+
+                        <div class="mb-3">
+
+                            <label asp-for="Input.Email"
+                                   class="form-label">
+
+                                Е-пошта
+
+                            </label>
+
+                            <input asp-for="Input.Email"
+                                   class="form-control"
+                                   autocomplete="username"
+                                   aria-required="true"
+                                   placeholder="example@email.com" />
+
+                            <span asp-validation-for="Input.Email"
+                                  class="text-danger">
+
+                            </span>
+
+                        </div>
+
+
+
+                        <!-- PASSWORD -->
+
+                        <div class="mb-3">
+
+                            <label asp-for="Input.Password"
+                                   class="form-label">
+
+                                Лозинка
+
+                            </label>
+
+                            <input asp-for="Input.Password"
+                                   class="form-control"
+                                   autocomplete="current-password"
+                                   aria-required="true"
+                                   placeholder="Внесете лозинка" />
+
+                            <span asp-validation-for="Input.Password"
+                                  class="text-danger">
+
+                            </span>
+
+                        </div>
+
+
+
+                        <!-- REMEMBER -->
+
+                        <div class="form-check mb-4">
+
+                            <input class="form-check-input"
+                                   asp-for="Input.RememberMe" />
+
+                            <label class="form-check-label"
+                                   asp-for="Input.RememberMe">
+
+                                Запомни ме
+
+                            </label>
+
+                        </div>
+
+
+
+                        <!-- BUTTON -->
+
+                        <button id="login-submit"
+                                type="submit"
+                                class="w-100 btn btn-dark btn-login">
+
+                            Најави се
+
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+}

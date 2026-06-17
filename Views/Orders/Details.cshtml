@@ -1,0 +1,235 @@
+﻿@using EcoLaundry.Entities
+@model Order
+
+@{
+    ViewData["Title"] = "Нарачка";
+    var items = Model.Items ?? Enumerable.Empty<OrderItem>();
+}
+
+<div class="container-fluid">
+
+    <!-- HEADER -->
+    <div class="card shadow-sm mb-2">
+        <div class="card-body py-2">
+            <div class="d-flex justify-content-between">
+
+                <div>
+                    <h5 class="mb-1">#@(Model.OrderNumber ?? "-")</h5>
+
+                    @if (Model.IsExpress)
+                    {
+                        <span class="badge bg-danger">
+                            🔥 EXPRESS
+                        </span>
+                    }
+                </div>
+
+                <div class="text-end">
+                    <h4 class="mb-0">
+                        @(Model.TotalPrice.HasValue
+                            ? Model.TotalPrice + " ден"
+                            : "-")
+                    </h4>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+    <!-- CUSTOMER + STATUS -->
+    <div class="card shadow-sm mb-2">
+        <div class="card-body py-2">
+
+            @if (Model.Customer != null)
+            {
+                <strong>
+                    @Model.Customer.FirstName
+                    @Model.Customer.LastName
+                </strong>
+
+                <br />
+
+                <small>
+                    📞 @Model.Customer.Phone
+                </small>
+            }
+
+            <hr class="my-2" />
+
+
+            <div class="d-flex justify-content-between">
+
+                <div>
+                    @switch (Model.Status)
+                    {
+                        case OrderStatus.Received:
+                            <span class="badge bg-warning">
+                                Примено
+                            </span>
+                            break;
+
+                        case OrderStatus.InProgress:
+                            <span class="badge bg-info">
+                                Во работа
+                            </span>
+                            break;
+
+                        case OrderStatus.Finished:
+                            <span class="badge bg-success">
+                                Завршено
+                            </span>
+                            break;
+                    }
+                </div>
+
+
+                <div>
+                    @if (Model.PaymentStatus == PaymentStatus.Paid)
+                    {
+                        <span class="badge bg-success">
+                            Платено
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-danger">
+                            Неплатено
+                        </span>
+                    }
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+
+
+    <!-- ITEMS -->
+    <div class="card shadow-sm mb-2">
+        <div class="card-body py-2">
+
+            <h6>
+                👕 Облека
+            </h6>
+
+
+            @foreach (var item in items)
+            {
+                <div class="d-flex justify-content-between border-bottom py-1">
+
+                    <div>
+
+                        ✓ @(item.LaundryCategory?.Name
+                                                    ?? "Непознато")
+
+
+                        <span class="badge bg-secondary ms-1">
+                            x @item.Quantity
+                        </span>
+
+                    </div>
+
+
+                    <strong>
+                        @item.Price ден
+                    </strong>
+
+                </div>
+            }
+
+        </div>
+    </div>
+
+
+
+    <!-- DATES -->
+    <div class="card shadow-sm mb-2">
+        <div class="card-body py-2">
+
+
+            <div>
+                📥  @Model.ReceivedDate.ToString("dd.MM.yyyy HH:mm")
+            </div>
+
+
+            @if (Model.ExpectedFinishDate.HasValue)
+            {
+                <div>
+                    ⏳ @Model.ExpectedFinishDate.Value.ToString("dd.MM.yyyy HH:mm")
+                </div>
+            }
+
+
+            @if (Model.FinishedDate.HasValue)
+            {
+                <div>
+                    ✅@Model.FinishedDate.Value.ToString("dd.MM.yyyy HH:mm")
+                </div>
+            }
+
+
+            <hr class="my-2" />
+
+
+            <div class="d-flex justify-content-between">
+                <span>☎ Контактиран</span>
+
+                <strong>
+                    @(Model.CustomerContacted ? "Да" : "Не")
+                </strong>
+            </div>
+
+
+            <div class="d-flex justify-content-between">
+                <span>📦 Подигнато</span>
+
+                <strong>
+                    @(Model.PickedUp ? "Да" : "Не")
+                </strong>
+            </div>
+
+
+        </div>
+    </div>
+
+
+
+
+    @if (!string.IsNullOrWhiteSpace(Model.Notes))
+    {
+        <div class="card shadow-sm mb-2">
+            <div class="card-body py-2">
+
+                📝 @Model.Notes
+
+            </div>
+        </div>
+    }
+
+
+
+
+    <!-- BUTTONS -->
+    <div class="d-grid gap-2 mb-3">
+
+        <a asp-action="Edit"
+           asp-route-id="@Model.Id"
+           class="btn btn-primary">
+
+            Измени
+
+        </a>
+
+        <a asp-action="Index"
+           class="btn btn-outline-secondary">
+
+            Назад
+
+        </a>
+
+    </div>
+
+
+</div>

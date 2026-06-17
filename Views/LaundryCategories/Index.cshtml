@@ -1,0 +1,306 @@
+﻿@using EcoLaundry.Entities
+@model IEnumerable<LaundryCategory>
+@{
+    ViewData["Title"] = "Категории";
+
+    var categories = Model ?? Enumerable.Empty<LaundryCategory>();
+}
+
+<div class="container-fluid">
+
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+
+        <h4 class="mb-0">
+            Категории
+        </h4>
+
+
+        <a asp-action="Create"
+           class="btn btn-primary btn-sm">
+
+            + Нова
+
+        </a>
+
+    </div>
+
+
+
+
+
+    <!-- SEARCH -->
+
+    <div class="mb-3">
+
+        <input type="text"
+               id="searchInput"
+               class="form-control form-control-lg"
+               placeholder="🔍 Барај категорија..." />
+
+    </div>
+
+
+
+    <!-- MOBILE CARDS -->
+
+    <div class="d-md-none">
+
+
+        @foreach (var item in categories)
+        {
+
+            <div class="card shadow-sm mb-3 category-card">
+
+
+                <div class="card-body">
+
+
+                    <div class="d-flex justify-content-between align-items-start">
+
+
+                        <div>
+
+                            <h5 class="mb-1">
+
+                                @item.Name
+
+                            </h5>
+
+
+                            @if (item.Active)
+                            {
+                                <span class="badge bg-success">
+                                    Активна
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">
+                                    Неактивна
+                                </span>
+                            }
+
+
+                        </div>
+
+
+
+
+                        <a asp-action="Edit"
+                           asp-route-id="@item.Id"
+                           class="btn btn-outline-secondary btn-sm">
+
+                            Измени
+
+                        </a>
+
+
+
+                    </div>
+
+
+                </div>
+
+
+            </div>
+
+        }
+
+
+    </div>
+
+
+
+
+
+
+
+
+
+    <!-- DESKTOP TABLE -->
+
+    <div class="table-responsive d-none d-md-block">
+
+
+        <table class="table table-hover align-middle"
+               id="categoriesTable">
+
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Категорија
+                    </th>
+
+
+                    <th>
+                        Статус
+                    </th>
+
+
+                    <th class="text-end">
+                        Акција
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+
+
+            <tbody>
+
+
+                @foreach (var item in Model)
+                {
+
+                    <tr>
+
+
+                        <td>
+
+                            <strong>
+                                @item.Name
+                            </strong>
+
+                        </td>
+
+
+
+                        <td>
+
+                            @if (item.Active)
+                            {
+                                <span class="badge bg-success">
+
+                                    Активна
+
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">
+
+                                    Неактивна
+
+                                </span>
+                            }
+
+
+                        </td>
+
+
+
+
+                        <td class="text-end">
+
+
+                            <a asp-action="Edit"
+                               asp-route-id="@item.Id"
+                               class="btn btn-sm btn-outline-secondary">
+
+                                Измени
+
+                            </a>
+
+
+                        </td>
+
+
+
+                    </tr>
+
+                }
+
+
+            </tbody>
+
+
+        </table>
+
+
+    </div>
+
+
+</div>
+
+
+
+
+
+
+
+
+@section Scripts
+{
+
+    <script>
+
+
+        document
+            .getElementById("searchInput")
+            .addEventListener("keyup", function () {
+
+
+                let value =
+                    this.value.toLowerCase();
+
+
+
+
+                // mobile
+
+                document
+                    .querySelectorAll(".category-card")
+                    .forEach(card => {
+
+
+                        let text =
+                            card.innerText.toLowerCase();
+
+
+
+                        card.style.display =
+                            text.includes(value)
+                                ? ""
+                                : "none";
+
+
+                    });
+
+
+
+
+
+
+                // desktop
+
+                document
+                    .querySelectorAll("#categoriesTable tbody tr")
+                    .forEach(row => {
+
+
+                        let text =
+                            row.innerText.toLowerCase();
+
+
+
+                        row.style.display =
+                            text.includes(value)
+                                ? ""
+                                : "none";
+
+
+                    });
+
+
+            });
+
+
+    </script>
+
+}

@@ -1,0 +1,137 @@
+﻿@using EcoLaundry.ViewModels
+@model List<CategoryStatisticViewModel>
+
+
+<div class="container-fluid">
+
+    <h4 class="mb-3">
+        📊 Статистика
+    </h4>
+
+
+    <form method="get" class="row g-2 mb-3">
+
+        <div class="col-6 col-md-3">
+
+            <input type="date"
+                   name="from"
+                   value="@ViewBag.From?.ToString("yyyy-MM-dd")"
+                   class="form-control" />
+
+        </div>
+
+
+        <div class="col-6 col-md-3">
+
+            <input type="date"
+                   name="to"
+                   value="@ViewBag.To?.ToString("yyyy-MM-dd")"
+                   class="form-control" />
+
+        </div>
+
+
+        <div class="col-12 col-md-2">
+
+            <button class="btn btn-primary w-100">
+                Филтрирај
+            </button>
+
+        </div>
+
+    </form>
+
+
+
+
+
+
+    <div class="row g-3">
+
+
+        @foreach (var item in Model)
+        {
+
+            <div class="col-12 col-md-4 col-xl-3">
+
+
+                <a asp-action="Details"
+                   asp-route-id="@item.CategoryId"
+                   asp-route-from="@ViewBag.From"
+                   asp-route-to="@ViewBag.To"
+                   class="text-decoration-none text-dark">
+
+
+
+                    <div class="card shadow-sm h-100">
+
+                        <div class="card-body">
+
+
+                            <h5 class="mb-3">
+
+                                👕 @item.CategoryName
+
+                            </h5>
+
+
+
+                            <div class="d-flex justify-content-between">
+
+                                <span>
+                                    🧾 Нарачки
+                                </span>
+
+                                <strong>
+                                    @item.OrderCount
+                                </strong>
+
+                            </div>
+
+
+
+                            <div class="d-flex justify-content-between">
+
+                                <span>
+                                    📦 Парчиња
+                                </span>
+
+                                <strong>
+                                    @item.Quantity
+                                </strong>
+
+                            </div>
+
+
+
+                            <hr />
+
+
+                            <div class="text-end">
+
+                                <h4 class="mb-0">
+
+                                    @item.Total ден
+
+                                </h4>
+
+                            </div>
+
+
+                        </div>
+
+                    </div>
+
+
+
+                </a>
+
+
+            </div>
+
+        }
+
+    </div>
+
+
+</div>
