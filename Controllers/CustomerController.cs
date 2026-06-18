@@ -52,14 +52,11 @@ public class CustomersController : Controller
 
 
 
-
     // GET: Customers/Create
     public IActionResult Create()
     {
         return View();
     }
-
-
 
 
     // POST: Customers/Create

@@ -13,6 +13,9 @@
     var customersJson =
         JsonSerializer.Serialize(ViewBag.Customers);
 
+    var selectedCustomerJson =
+        JsonSerializer.Serialize(ViewBag.SelectedCustomer);
+
     var categoriesJson =
         JsonSerializer.Serialize(
             categories.Select(x => new
@@ -30,6 +33,7 @@
         <div class="card-body">
 
             <h4 class="mb-3">Нова нарачка</h4>
+
 
             <form asp-action="Create" method="post">
 
@@ -57,7 +61,6 @@
 
 
 
-
                 <!-- EXPRESS -->
 
                 <div class="form-check form-switch mb-3">
@@ -78,7 +81,6 @@
 
                 <!-- DATES -->
 
-
                 <div class="mb-3">
 
                     <label>⏳ Очекувано готово</label>
@@ -89,8 +91,6 @@
                            class="form-control" />
 
                 </div>
-
-
 
 
                 <div class="mb-3">
@@ -108,9 +108,7 @@
 
 
 
-
                 <!-- NOTES -->
-
 
                 <div class="mb-3">
 
@@ -129,7 +127,6 @@
 
                 <hr />
 
-
                 <h5>👕 Облека</h5>
 
 
@@ -141,7 +138,6 @@
                 <div id="categoryResults"
                      class="list-group mb-3">
                 </div>
-
 
 
                 <div id="items">
@@ -157,11 +153,7 @@
                     Вкупно:
 
                     <strong>
-
-                        <span id="totalPrice">0</span>
-
-                        ден
-
+                        <span id="totalPrice">0</span> ден
                     </strong>
 
                 </div>
@@ -173,7 +165,9 @@
                 <div class="d-grid gap-2">
 
                     <button class="btn btn-primary btn-lg">
+
                         💾 Зачувај
+
                     </button>
 
 
@@ -184,6 +178,7 @@
 
                     </a>
 
+
                 </div>
 
 
@@ -191,8 +186,8 @@
 
         </div>
     </div>
-</div>
 
+</div>
 
 
 
@@ -213,14 +208,36 @@
         @Html.Raw(customersJson);
 
 
+        const selectedCustomer =
+        @Html.Raw(selectedCustomerJson);
+
+
         const categories =
         @Html.Raw(categoriesJson);
 
 
 
 
-        // CUSTOMER SEARCH
+        // SET SELECTED CUSTOMER
 
+        if(selectedCustomer)
+        {
+
+        CustomerId.value =
+        selectedCustomer.Id;
+
+
+        customerSearch.value =
+        selectedCustomer.Display;
+
+        }
+
+
+
+
+
+
+        // CUSTOMER SEARCH
 
         customerSearch.addEventListener("input",()=>{
 
@@ -276,6 +293,7 @@
         };
 
 
+
         customerResults.appendChild(btn);
 
 
@@ -290,8 +308,8 @@
 
 
 
-        // CATEGORY SEARCH
 
+        // CATEGORY SEARCH
 
         categorySearch.addEventListener("input",()=>{
 
@@ -333,7 +351,10 @@
         btn.onclick=()=>{
 
 
-        addItem(c.Id,c.Name);
+        addItem(
+        c.Id,
+        c.Name
+        );
 
 
         categorySearch.value="";
@@ -342,6 +363,7 @@
 
 
         };
+
 
 
         categoryResults.appendChild(btn);
@@ -361,11 +383,13 @@
 
         // ADD ITEM
 
+        function addItem(id,name)
+        {
 
-        function addItem(id,name){
 
-
-        items.insertAdjacentHTML("beforeend",`
+        items.insertAdjacentHTML(
+        "beforeend",
+        `
 
         <div class="card mb-2 item-row">
 
@@ -419,7 +443,8 @@
         </div>
         </div>
 
-        `);
+        `
+        );
 
 
         calculateTotal();
@@ -432,10 +457,12 @@
 
 
 
+
+
         // TOTAL
 
-
-        function calculateTotal(){
+        function calculateTotal()
+        {
 
 
         let total=0;
@@ -454,7 +481,8 @@
         row.querySelector(".price-input").value;
 
 
-        total += Number(q)*Number(p);
+        total +=
+        Number(q) * Number(p);
 
 
         });
@@ -471,6 +499,10 @@
 
 
 
+
+
+        // CHANGE PRICE OR QUANTITY
+
         document.addEventListener("input",e=>{
 
 
@@ -483,6 +515,13 @@
 
 
         });
+
+
+
+
+
+
+        // REMOVE ITEM
 
         document.addEventListener("click",e=>{
 
@@ -498,6 +537,12 @@
 
 
         });
+
+
+
         calculateTotal();
+
+
     </script>
+
 }

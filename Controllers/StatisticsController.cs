@@ -1,4 +1,5 @@
 ﻿using EcoLaundry.Data;
+using EcoLaundry.Entities;
 using EcoLaundry.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -22,36 +23,33 @@ public class StatisticsController : Controller
 
 
     public async Task<IActionResult> Index(
-        DateTime? from,
-        DateTime? to)
+     DateTime? from,
+     DateTime? to)
     {
-
         var query =
             _context.OrderItems
-            .Include(x => x.Order)
-            .Include(x => x.LaundryCategory)
-            .AsQueryable();
-
+                .AsNoTracking()
+                .Where(x =>
+                    x.Order.PaymentStatus == PaymentStatus.Paid);
 
 
         if (from.HasValue)
         {
             query =
                 query.Where(x =>
-                    x.Order.ReceivedDate.Date >=
-                    from.Value.Date);
+                    x.Order.ReceivedDate >= from.Value.Date);
         }
-
 
 
         if (to.HasValue)
         {
+            var toDate =
+                to.Value.Date.AddDays(1);
+
             query =
                 query.Where(x =>
-                    x.Order.ReceivedDate.Date <=
-                    to.Value.Date);
+                    x.Order.ReceivedDate < toDate);
         }
-
 
 
 
@@ -64,23 +62,26 @@ public class StatisticsController : Controller
                 x.LaundryCategory.Name
             })
 
-
             .Select(x =>
                 new CategoryStatisticViewModel
                 {
                     CategoryId =
                         x.Key.LaundryCategoryId,
 
+
                     CategoryName =
                         x.Key.Name,
+
 
                     OrderCount =
                         x.Select(a => a.OrderId)
                          .Distinct()
                          .Count(),
 
+
                     Quantity =
                         x.Sum(a => a.Quantity),
+
 
                     Total =
                         x.Sum(a =>
@@ -88,10 +89,11 @@ public class StatisticsController : Controller
                 })
 
 
-            .OrderByDescending(x => x.Total)
+            .OrderByDescending(x =>
+                x.Total)
+
 
             .ToListAsync();
-
 
 
 
@@ -101,7 +103,6 @@ public class StatisticsController : Controller
 
         return View(result);
     }
-
 
 
 

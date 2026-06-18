@@ -2,6 +2,7 @@
 using EcoLaundry.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace EcoLaundry.Controllers;
@@ -117,11 +118,6 @@ public class OrdersController : Controller
 
 
 
-
-
-
-
-
     // =============================
     // CREATE GET
     // =============================
@@ -129,9 +125,26 @@ public class OrdersController : Controller
 
     public async Task<IActionResult> Create(int? customerId)
     {
-        await LoadData();
+        if (customerId.HasValue)
+        {
+            ViewBag.SelectedCustomer =
+          await _context.Customers
+        .Where(x => x.Id == customerId.Value)
+        .Select(x => new
+        {
+            Id = x.Id,
 
-
+            Display =
+                x.FirstName + " " +
+                x.LastName +
+                " - " +
+                x.Phone
+        })
+        .FirstOrDefaultAsync();
+        }
+       
+            await LoadData(true);
+        
 
         var order = new Order
         {
@@ -183,7 +196,7 @@ public class OrdersController : Controller
 
         if (!ModelState.IsValid)
         {
-            await LoadData();
+            await LoadData(true);
 
             return View(order);
         }
@@ -240,7 +253,6 @@ public class OrdersController : Controller
 
     public async Task<IActionResult> Edit(int id)
     {
-
         var order =
             await _context.Orders
 
@@ -248,16 +260,10 @@ public class OrdersController : Controller
 
             .FirstOrDefaultAsync(x => x.Id == id);
 
-
-
         if (order == null)
             return NotFound();
 
-
-
-        await LoadData();
-
-
+        await LoadData(true);
 
         return View(order);
     }
@@ -296,7 +302,7 @@ public class OrdersController : Controller
             dbOrder.Status =
          order.Status;
         }
-     
+
 
 
         dbOrder.PaymentStatus =
@@ -326,7 +332,7 @@ public class OrdersController : Controller
         dbOrder.Notes =
             order.Notes;
 
-      
+
 
 
 
@@ -389,11 +395,12 @@ public class OrdersController : Controller
 
 
 
-    private async Task LoadData()
+    private async Task LoadData(bool loadCustomers)
     {
 
-
-        ViewBag.Customers =
+        if (loadCustomers)
+        {
+            ViewBag.Customers =
             await _context.Customers
 
             .OrderBy(x => x.FirstName)
@@ -414,15 +421,15 @@ public class OrdersController : Controller
             })
 
             .ToListAsync();
+
+        }
         ViewBag.Categories =
-            await _context.LaundryCategories
+           await _context.LaundryCategories
 
-            .Where(x => x.Active)
+           .Where(x => x.Active)
 
-            .OrderBy(x => x.Name)
+           .OrderBy(x => x.Name)
 
-            .ToListAsync();
-
+           .ToListAsync();
     }
-
 }
