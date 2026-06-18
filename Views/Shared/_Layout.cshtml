@@ -1,91 +1,590 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="mk">
+
 <head>
+
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <meta name="theme-color" content="#000000">
+
+
     <title>@ViewData["Title"] - EcoLaundry</title>
-    <script type="importmap"></script>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/EcoLaundry.styles.css" asp-append-version="true" />
+
+
+
+    <!-- PWA -->
+
+    <link rel="manifest" href="/manifest.json">
+
+    <link rel="apple-touch-icon"
+          href="/apple-touch-icon.png">
+
+
+    <link rel="icon"
+          type="image/png"
+          sizes="32x32"
+          href="/favicon-32x32.png">
+
+    <link rel="icon"
+          type="image/png"
+          sizes="16x16"
+          href="/favicon-16x16.png">
+
+
+
+    <!-- CSS -->
+
+    <link rel="stylesheet"
+          href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+
+    <link rel="stylesheet"
+          href="~/css/site.css"
+          asp-append-version="true" />
+
+
+    <link rel="stylesheet"
+          href="~/EcoLaundry.styles.css"
+          asp-append-version="true" />
+
+
 </head>
+
+
+
+
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Customers" asp-action="Index">EcoLaundry</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-
-                    <ul class="navbar-nav flex-grow-1">
-
-                        @if (User.Identity?.IsAuthenticated == true)
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark"
-                                   asp-area=""
-                                   asp-controller="Customers"
-                                   asp-action="Index">
-                                    Клиенти
-                                </a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link text-dark"
-                                   asp-area=""
-                                   asp-controller="Orders"
-                                   asp-action="Index">
-                                    Нарачки
-                                </a>
-                            </li>
-                        }
-
-                        @if (User.IsInRole("Admin"))
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark"
-                                   asp-area=""
-                                   asp-controller="LaundryCategories"
-                                   asp-action="Index">
-                                    Категории
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark"
-                                   asp-area=""
-                                   asp-controller="Statistics"
-                                   asp-action="Index">
-                                    Статистика
-                                </a>
-                            </li>
-                        }
-
-                    </ul>
 
 
-                    <partial name="_LoginPartial" />
+<header>
 
-                </div>
-            </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - EcoLaundry - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
+<nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow mb-3">
+
+
+<div class="container-fluid">
+
+
+
+<a class="navbar-brand"
+   asp-controller="Customers"
+   asp-action="Index">
+
+🧺 EcoLaundry
+
+</a>
+
+
+
+
+
+<button class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target=".navbar-collapse">
+
+
+<span class="navbar-toggler-icon"></span>
+
+
+</button>
+
+
+
+
+
+<div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+
+
+
+<ul class="navbar-nav flex-grow-1">
+
+
+
+
+
+@if(User.Identity?.IsAuthenticated == true)
+{
+
+
+<li class="nav-item">
+
+
+<a class="nav-link text-dark"
+   asp-controller="Customers"
+   asp-action="Index">
+
+👥 Клиенти
+
+</a>
+
+
+</li>
+
+
+
+
+
+<li class="nav-item">
+
+
+<a class="nav-link text-dark"
+   asp-controller="Orders"
+   asp-action="Index">
+
+📦 Нарачки
+
+</a>
+
+
+</li>
+
+
+
+}
+
+
+
+
+
+@if(User.IsInRole("Admin"))
+{
+
+
+<li class="nav-item">
+
+
+<a class="nav-link text-dark"
+   asp-controller="LaundryCategories"
+   asp-action="Index">
+
+🏷 Категории
+
+</a>
+
+
+</li>
+
+
+
+
+
+<li class="nav-item">
+
+
+<a class="nav-link text-dark"
+   asp-controller="Statistics"
+   asp-action="Index">
+
+📊 Статистика
+
+</a>
+
+
+</li>
+
+
+}
+
+
+
+
+
+
+<li class="nav-item ms-sm-3 my-2 my-sm-0">
+
+
+<button id="installBtn"
+        class="btn btn-success btn-sm px-3 text-nowrap"
+        style="display:none;">
+
+
+📲 Инсталирај
+
+
+</button>
+
+
+</li>
+
+
+
+
+</ul>
+
+
+
+
+
+<div class="ms-sm-3 mt-3 mt-sm-0">
+
+<partial name="_LoginPartial" />
+
+</div>
+
+
+
+
+</div>
+
+
+</div>
+
+
+</nav>
+
+
+</header>
+
+
+
+
+
+
+
+<div class="container">
+
+
+<main role="main"
+      class="pb-3">
+
+
+@RenderBody()
+
+
+</main>
+
+
+</div>
+
+
+
+
+
+
+
+<!-- TOAST -->
+
+
+<div id="installToast"
+     class="position-fixed bottom-0 end-0 m-3 bg-dark text-white p-3 rounded"
+     style="display:none;z-index:9999;">
+
+
+<span id="toastText"></span>
+
+
+</div>
+
+
+
+
+
+
+
+
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+
+<script src="~/js/site.js"
+        asp-append-version="true"></script>
+
+
+
+
+
+
+<script>
+
+
+// SERVICE WORKER
+
+
+if("serviceWorker" in navigator){
+
+
+navigator.serviceWorker
+.register("/service-worker.js")
+
+.then(()=>console.log("SW OK"))
+
+.catch(e=>console.log(e));
+
+
+}
+
+
+
+
+
+let deferredPrompt;
+
+
+
+const isIos =
+/iphone|ipad|ipod/.test(
+navigator.userAgent.toLowerCase()
+);
+
+
+
+
+
+
+window.addEventListener(
+"beforeinstallprompt",
+(e)=>{
+
+
+e.preventDefault();
+
+
+deferredPrompt=e;
+
+
+showInstallButton();
+
+
+});
+
+
+
+
+
+
+
+
+
+window.addEventListener(
+"load",
+()=>{
+
+
+
+const btn =
+document.getElementById("installBtn");
+
+
+
+if(!btn)
+return;
+
+
+
+
+
+if(
+window.matchMedia(
+"(display-mode: standalone)"
+).matches
+){
+
+
+btn.remove();
+
+
+return;
+
+}
+
+
+
+
+
+
+
+if(isIos){
+
+
+showInstallButton();
+
+
+
+btn.onclick=()=>{
+
+
+showToast(
+"📱 Safari → Share → Add to Home Screen"
+);
+
+
+};
+
+
+
+return;
+
+
+}
+
+
+
+
+
+
+
+btn.onclick=async()=>{
+
+
+
+if(!deferredPrompt){
+
+
+showToast(
+"ℹ️ Инсталацијата моментално не е достапна"
+);
+
+
+return;
+
+
+}
+
+
+
+
+deferredPrompt.prompt();
+
+
+
+const result =
+await deferredPrompt.userChoice;
+
+
+
+
+if(result.outcome==="accepted"){
+
+
+showToast(
+"🎉 Инсталирање..."
+);
+
+
+}
+
+
+
+
+deferredPrompt=null;
+
+
+
+};
+
+
+
+});
+
+
+
+
+
+
+
+
+window.addEventListener(
+"appinstalled",
+()=>{
+
+
+showToast(
+"✅ EcoLaundry е инсталирана!"
+);
+
+
+document
+.getElementById("installBtn")
+?.remove();
+
+
+});
+
+
+
+
+
+
+
+
+
+function showInstallButton(){
+
+
+const btn =
+document.getElementById("installBtn");
+
+
+
+if(btn){
+
+btn.style.display="inline-flex";
+
+}
+
+
+}
+
+
+
+
+
+
+
+function showToast(msg){
+
+
+
+const toast =
+document.getElementById("installToast");
+
+
+const text =
+document.getElementById("toastText");
+
+
+
+if(!toast || !text)
+return;
+
+
+
+
+text.innerText=msg;
+
+
+
+toast.style.display="block";
+
+
+
+setTimeout(()=>{
+
+
+toast.style.display="none";
+
+
+},3000);
+
+
+
+}
+
+
+</script>
+
+
+
+
+@await RenderSectionAsync("Scripts", required:false)
+
 </body>
+
 </html>
