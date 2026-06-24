@@ -164,23 +164,12 @@ public class OrdersController : Controller
                 PaymentStatus.Unpaid
         };
 
-
-
         return View(order);
     }
-
-
-
-
-
-
-
-
 
     // =============================
     // CREATE POST
     // =============================
-
 
 
     [HttpPost]

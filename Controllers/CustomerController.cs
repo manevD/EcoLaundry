@@ -39,7 +39,7 @@ public class CustomersController : Controller
 
         var customer = await _context.Customers
             .Include(x => x.Orders)
-                .ThenInclude(x => x.Items)
+                .ThenInclude(x => x.Items).ThenInclude(x=>x.LaundryCategory)
             .FirstOrDefaultAsync(x => x.Id == id);
 
 

@@ -13,8 +13,8 @@
     var customersJson =
         JsonSerializer.Serialize(ViewBag.Customers);
 
-    var selectedCustomerJson =
-        JsonSerializer.Serialize(ViewBag.SelectedCustomer);
+var selectedCustomerJson =
+    JsonSerializer.Serialize((object)ViewBag.SelectedCustomer);
 
     var categoriesJson =
         JsonSerializer.Serialize(

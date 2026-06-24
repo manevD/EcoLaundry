@@ -216,18 +216,21 @@
                     <hr />
 
 
-
-                    @foreach (var item in order.Items)
+                    @if (order.Items != null && order.Items.Any())
                     {
-                        <div>
+                        @foreach (var item in order.Items)
+                        {
+                            <div>
 
-                            ✓ @item.LaundryCategory.Name
+                                ✓ @item.LaundryCategory.Name
 
-                            x @item.Quantity
+                                x @item.Quantity
 
-                        </div>
+                            </div>
+                        }
                     }
 
+                    
 
 
                     <hr />
