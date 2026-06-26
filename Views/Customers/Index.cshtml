@@ -224,78 +224,17 @@
 
 </div>
 
-
-
-
-
-
-@section Scripts
-{
+@section Scripts {
 
     <script>
 
+        attachSearch(
+            "searchInput",
+            ".customer-card");
 
-        const search =
-            document.getElementById("searchInput");
-
-
-
-        search.addEventListener(
-            "keyup",
-            function () {
-
-
-                let value =
-                    this.value.toLowerCase();
-
-
-
-
-                // mobile cards
-
-                document
-                    .querySelectorAll(".customer-card")
-                    .forEach(card => {
-
-
-                        let text =
-                            card.innerText.toLowerCase();
-
-
-
-                        card.style.display =
-                            text.includes(value)
-                                ? ""
-                                : "none";
-
-
-                    });
-
-
-
-
-
-
-                // desktop rows
-
-                document
-                    .querySelectorAll("#customersTable tbody tr")
-                    .forEach(row => {
-
-
-                        let text =
-                            row.innerText.toLowerCase();
-
-                        row.style.display =
-                            text.includes(value)
-                                ? ""
-                                : "none";
-
-
-                    });
-
-            });
-
+        attachSearch(
+            "searchInput",
+            "#customersTable tbody tr");
 
     </script>
 

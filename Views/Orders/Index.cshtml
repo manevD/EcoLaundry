@@ -357,46 +357,13 @@
 
 </div>
 
-
-
-
-
-
-
-
-
-@section Scripts {
+@section Scripts{
 
     <script>
 
-
-        document
-            .getElementById("orderSearch")
-            ?.addEventListener("keyup", function(){
-
-
-                let value =
-                    this.value.toLowerCase();
-
-
-
-                document
-                    .querySelectorAll(".order-card")
-                    .forEach(card => {
-
-
-                        card.style.display =
-                            card.innerText
-                                .toLowerCase()
-                                .includes(value)
-                                ? ""
-                                : "none";
-
-                    });
-
-
-            });
-
+        attachSearch(
+            "orderSearch",
+            ".order-card");
 
     </script>
 
