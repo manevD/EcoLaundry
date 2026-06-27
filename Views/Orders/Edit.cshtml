@@ -16,10 +16,8 @@
             {
                 x.Id,
                 x.Name
-            })
-        );
+            }));
 }
-
 
 <div class="container-fluid">
 
@@ -28,535 +26,403 @@
 
             <h4 class="mb-3">Измени нарачка</h4>
 
-
             <form asp-action="Edit" method="post">
 
                 <input type="hidden" asp-for="Id" />
                 <input type="hidden" asp-for="CustomerId" />
                 <input type="hidden" asp-for="OrderNumber" />
 
-
                 <div class="alert alert-light py-2">
-                    <strong>#@(Model.OrderNumber ?? "-")</strong>
-                    <br />
+                    <strong>#@(Model.OrderNumber ?? "-")</strong><br />
                     📥 @Model.ReceivedDate.ToString("dd.MM.yyyy HH:mm")
                 </div>
 
-
-
                 <div class="mb-3">
                     <label>Статус</label>
-
                     <select asp-for="Status"
                             asp-items="Html.GetEnumSelectList<OrderStatus>()"
                             class="form-select form-select-lg">
                     </select>
-
                 </div>
-
-
-
 
                 <div class="mb-3">
                     <label>Плаќање</label>
-
                     <select asp-for="PaymentStatus"
                             asp-items="Html.GetEnumSelectList<PaymentStatus>()"
                             class="form-select form-select-lg">
                     </select>
-
                 </div>
 
-
-
-
                 <div class="alert alert-success">
-
                     Вкупно:
-
                     <strong>
                         <span id="totalPrice">@Model.TotalPrice</span> ден
                     </strong>
-
                 </div>
-
-
-
-
-
 
                 <div class="card mb-3">
                     <div class="card-body">
 
-
                         <div class="form-check form-switch mb-3">
-
                             <input asp-for="IsExpress"
                                    class="form-check-input"
                                    style="width:50px;height:25px;" />
-
-                            <label class="ms-2">
-                                🔥 Express
-                            </label>
-
+                            <label class="ms-2">🔥 Express</label>
                         </div>
 
-
-
                         <div class="form-check form-switch mb-3">
-
                             <input asp-for="CustomerContacted"
                                    class="form-check-input"
                                    style="width:50px;height:25px;" />
-
-                            <label class="ms-2">
-                                ☎ Контактиран
-                            </label>
-
+                            <label class="ms-2">☎ Контактиран</label>
                         </div>
 
-
-
-
                         <div class="form-check form-switch">
-
                             <input asp-for="PickedUp"
                                    class="form-check-input"
                                    style="width:50px;height:25px;" />
-
-                            <label class="ms-2">
-                                📦 Подигнато
-                            </label>
-
+                            <label class="ms-2">📦 Подигнато</label>
                         </div>
-
 
                     </div>
                 </div>
 
-
-
-
-
-
-
                 <div class="mb-3">
-
                     <label>⏳ Очекувано готово</label>
 
                     <input asp-for="ExpectedFinishDate"
                            type="datetime-local"
                            value="@(Model.ExpectedFinishDate?.ToString("yyyy-MM-ddTHH:mm"))"
                            class="form-control" />
-
                 </div>
 
-
-
-
                 <div class="mb-3">
-
                     <label>✅ Завршено</label>
 
                     <input asp-for="FinishedDate"
                            type="datetime-local"
                            value="@(Model.FinishedDate?.ToString("yyyy-MM-ddTHH:mm"))"
                            class="form-control" />
-
                 </div>
 
-
-
-
-
                 <div class="mb-3">
-
                     <label>📝 Забелешка</label>
 
                     <textarea asp-for="Notes"
                               rows="3"
-                              class="form-control">
-</textarea>
-
+                              class="form-control"></textarea>
                 </div>
-
-
-
-
-
-
 
                 <hr />
 
-
                 <h5>👕 Облека</h5>
-
 
                 <input type="text"
                        id="categorySearch"
                        class="form-control form-control-lg mb-2"
                        placeholder="🔍 Барај категорија..." />
 
-
                 <div id="categoryResults"
                      class="list-group mb-3">
                 </div>
 
-
-
-
-
-
                 <div id="items">
-
 
                     @foreach (var item in Model.Items ?? Enumerable.Empty<OrderItem>())
                     {
-
                         <div class="card mb-2 item-row">
 
                             <div class="card-body py-2">
 
-
-                                <strong>
-                                    @item.LaundryCategory?.Name
-                                </strong>
-
+                                <strong>@item.LaundryCategory?.Name</strong>
 
                                 <input type="hidden"
                                        name="categoryIds"
                                        value="@item.LaundryCategoryId" />
 
-
-
                                 <div class="row mt-2">
 
-
                                     <div class="col-4">
-
                                         <input name="quantities"
                                                type="number"
                                                min="1"
                                                value="@item.Quantity"
                                                class="form-control quantity-input" />
-
                                     </div>
 
-
-
-
                                     <div class="col-6">
-
                                         <input name="prices"
                                                type="number"
                                                value="@item.Price"
                                                class="form-control price-input" />
-
                                     </div>
-
-
-
 
                                     <div class="col-2">
-
                                         <button type="button"
                                                 class="btn btn-danger remove">
-
                                             X
-
                                         </button>
-
                                     </div>
 
-
                                 </div>
-
 
                             </div>
 
                         </div>
-
                     }
 
                 </div>
-
-
-
-
-
-
-
-                <div class="d-grid gap-2 mt-3">
+                                <div class="d-grid gap-2 mt-3">
 
                     <button class="btn btn-primary btn-lg">
-
                         💾 Зачувај
-
                     </button>
-
 
                     <a asp-action="Details"
                        asp-route-id="@Model.Id"
                        class="btn btn-outline-secondary">
-
                         Назад
-
                     </a>
 
                 </div>
 
-
-
             </form>
 
         </div>
+
     </div>
 
 </div>
 
-
-
-
-
-
-
-
-
-@section Scripts {
-
+@section Scripts
+{
     <partial name="_ValidationScriptsPartial" />
-
 
     <script>
 
+        const categories = @Html.Raw(categoriesJson);
 
-        const categories =
-        @Html.Raw(categoriesJson);
+        const categorySearch = document.getElementById("categorySearch");
+        const categoryResults = document.getElementById("categoryResults");
+        const items = document.getElementById("items");
+        const totalPrice = document.getElementById("totalPrice");
 
+        function cyrToLat(text) {
 
+            if (!text) return "";
 
+            text = text.toLowerCase();
 
-        // CATEGORY SEARCH
+            const map = {
+                "а": "a", "б": "b", "в": "v", "г": "g", "д": "d",
+                "ѓ": "gj", "е": "e", "ж": "zh", "з": "z", "ѕ": "dz",
+                "и": "i", "ј": "j", "к": "k", "л": "l", "љ": "lj",
+                "м": "m", "н": "n", "њ": "nj", "о": "o", "п": "p",
+                "р": "r", "с": "s", "т": "t", "ќ": "kj", "у": "u",
+                "ф": "f", "х": "h", "ц": "c", "ч": "ch", "џ": "dj",
+                "ш": "sh"
+            };
 
-        categorySearch.addEventListener("input",()=>{
+            let result = "";
 
+            for (let i = 0; i < text.length; i++)
+                result += map[text[i]] ?? text[i];
 
-        let value =
-        categorySearch.value.toLowerCase();
+            return result;
+        }
 
+        function latToCyr(text) {
 
-        categoryResults.innerHTML="";
+            if (!text) return "";
 
+            text = text.toLowerCase();
 
-        if(value.length < 1)
-        return;
+            return text
+                .replace(/sh/g, "ш")
+                .replace(/zh/g, "ж")
+                .replace(/ch/g, "ч")
+                .replace(/lj/g, "љ")
+                .replace(/nj/g, "њ")
+                .replace(/gj/g, "ѓ")
+                .replace(/kj/g, "ќ")
+                .replace(/dz/g, "ѕ")
+                .replace(/dj/g, "џ")
+                .replace(/a/g, "а")
+                .replace(/b/g, "б")
+                .replace(/v/g, "в")
+                .replace(/g/g, "г")
+                .replace(/d/g, "д")
+                .replace(/e/g, "е")
+                .replace(/z/g, "з")
+                .replace(/i/g, "и")
+                .replace(/j/g, "ј")
+                .replace(/k/g, "к")
+                .replace(/l/g, "л")
+                .replace(/m/g, "м")
+                .replace(/n/g, "н")
+                .replace(/o/g, "о")
+                .replace(/p/g, "п")
+                .replace(/r/g, "р")
+                .replace(/s/g, "с")
+                .replace(/t/g, "т")
+                .replace(/u/g, "у")
+                .replace(/f/g, "ф")
+                .replace(/h/g, "х")
+                .replace(/c/g, "ц");
+        }
+                // CATEGORY SEARCH
 
+        categorySearch.addEventListener("input", function () {
 
+            const search = this.value.trim().toLowerCase();
 
-        categories
-        .filter(x=>x.Name.toLowerCase().includes(value))
-        .slice(0,10)
-        .forEach(c=>{
+            const latin = cyrToLat(search);
+            const cyr = latToCyr(search);
 
+            categoryResults.innerHTML = "";
 
-        let btn =
-        document.createElement("button");
+            if (search === "")
+                return;
 
+            categories
+                .filter(c => {
 
-        btn.type="button";
+                    const text = c.Name.toLowerCase();
+                    const latinText = cyrToLat(text);
 
+                    return text.includes(search)
+                        || latinText.includes(latin)
+                        || text.includes(cyr);
 
-        btn.className =
-        "list-group-item list-group-item-action";
+                })
+                .slice(0, 10)
+                .forEach(c => {
 
+                    const btn = document.createElement("button");
 
-        btn.innerText =
-        c.Name;
+                    btn.type = "button";
+                    btn.className = "list-group-item list-group-item-action";
+                    btn.innerText = c.Name;
 
+                    btn.onclick = function () {
 
+                        addItem(c.Id, c.Name);
 
-        btn.onclick=()=>{
+                        categorySearch.value = "";
+                        categoryResults.innerHTML = "";
 
+                    };
 
-        addItem(c.Id,c.Name);
+                    categoryResults.appendChild(btn);
 
-
-        categorySearch.value="";
-
-        categoryResults.innerHTML="";
-
-
-        };
-
-
-
-        categoryResults.appendChild(btn);
-
+                });
 
         });
-
-
-        });
-
-
-
-
-
-
 
         // ADD ITEM
 
-        function addItem(id,name){
+        function addItem(id, name) {
 
+            if (document.querySelector(`input[name="categoryIds"][value="${id}"]`))
+                return;
 
-        items.insertAdjacentHTML("beforeend",`
+            items.insertAdjacentHTML("beforeend", `
 
-        <div class="card mb-2 item-row">
+            <div class="card mb-2 item-row">
 
-        <div class="card-body py-2">
+                <div class="card-body py-2">
 
-        <strong>${name}</strong>
+                    <strong>${name}</strong>
 
+                    <input type="hidden"
+                           name="categoryIds"
+                           value="${id}" />
 
-        <input type="hidden"
-        name="categoryIds"
-        value="${id}">
+                    <div class="row mt-2">
 
+                        <div class="col-4">
 
-        <div class="row mt-2">
+                            <input name="quantities"
+                                   type="number"
+                                   min="1"
+                                   value="1"
+                                   class="form-control quantity-input" />
 
+                        </div>
 
-        <div class="col-4">
+                        <div class="col-6">
 
-        <input name="quantities"
-        type="number"
-        min="1"
-        value="1"
-        class="form-control quantity-input">
+                            <input name="prices"
+                                   type="number"
+                                   value="0"
+                                   class="form-control price-input" />
 
-        </div>
+                        </div>
 
+                        <div class="col-2">
 
-        <div class="col-6">
+                            <button type="button"
+                                    class="btn btn-danger remove">
+                                X
+                            </button>
 
-        <input name="prices"
-        type="number"
-        value="0"
-        class="form-control price-input">
+                        </div>
 
-        </div>
+                    </div>
 
+                </div>
 
+            </div>
 
-        <div class="col-2">
+            `);
 
-        <button type="button"
-        class="btn btn-danger remove">
-
-        X
-
-        </button>
-
-        </div>
-
-
-        </div>
-        </div>
-        </div>
-
-        `);
-
-
-        calculateTotal();
+            calculateTotal();
 
         }
 
+        function calculateTotal() {
 
+            let total = 0;
 
+            document.querySelectorAll(".item-row").forEach(row => {
 
+                const q = Number(row.querySelector(".quantity-input").value) || 0;
+                const p = Number(row.querySelector(".price-input").value) || 0;
 
+                total += q * p;
 
+            });
 
-        // TOTAL
-
-        function calculateTotal(){
-
-
-        let total=0;
-
-
-        document
-        .querySelectorAll(".item-row")
-        .forEach(row=>{
-
-
-        let q =
-        row.querySelector(".quantity-input").value;
-
-
-        let p =
-        row.querySelector(".price-input").value;
-
-
-        total +=
-        Number(q) * Number(p);
-
-
-        });
-
-
-        totalPrice.innerText =
-        total;
-
+            totalPrice.innerText = total;
 
         }
 
+        document.addEventListener("input", function (e) {
 
+            if (
+                e.target.classList.contains("quantity-input") ||
+                e.target.classList.contains("price-input")
+            ) {
 
+                calculateTotal();
 
-
-
-
-
-        document.addEventListener("input",e=>{
-
-
-        if(
-        e.target.classList.contains("quantity-input")
-        ||
-        e.target.classList.contains("price-input")
-        )
-        calculateTotal();
-
+            }
 
         });
 
+        document.addEventListener("click", function (e) {
 
+            if (e.target.classList.contains("remove")) {
 
+                e.target.closest(".item-row").remove();
 
+                calculateTotal();
 
-
-        document.addEventListener("click",e=>{
-
-
-        if(e.target.classList.contains("remove"))
-        {
-
-        e.target.closest(".item-row").remove();
-
-        calculateTotal();
-
-        }
-
+            }
 
         });
 
-
-
-
         calculateTotal();
-
 
     </script>
-
 }
