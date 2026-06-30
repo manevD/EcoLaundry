@@ -202,16 +202,19 @@
                                 Измени
 
                             </a>
-                            <button class="btn btn-danger"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#deleteModal"
-                                    data-id="@item.Id"
-                                    data-name="@item.FirstName">
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <button class="btn btn-danger"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#deleteModal"
+                                        data-id="@item.Id"
+                                        data-name="@item.FirstName">
 
-                                🗑️ Избриши
+                                    🗑️ Избриши
 
-                            </button>
+                                </button>
 
+                            }
 
                         </td>
 

@@ -183,7 +183,7 @@ public class OrdersController : Controller
         ModelState.Remove("Customer");
         ModelState.Remove("OrderNumber");
 
-        if (!ModelState.IsValid)
+        if (!ModelState.IsValid || categoryIds == null || categoryIds.Length == 0)
         {
             await LoadData(true);
 
