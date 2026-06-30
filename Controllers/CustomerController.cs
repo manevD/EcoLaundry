@@ -153,70 +153,24 @@ public class CustomersController : Controller
 
         return RedirectToAction(nameof(Index));
     }
-
-
-
-
-
-
     // GET: Customers/Delete/5
 
-    public async Task<IActionResult> Delete(int? id)
-    {
-
-        if (id == null)
-            return NotFound();
-
-
-
-        var customer =
-            await _context.Customers
-                .Include(x => x.Orders)
-                .FirstOrDefaultAsync(x => x.Id == id);
-
-
-
-        if (customer == null)
-            return NotFound();
-
-
-
-        return View(customer);
-    }
-
-
-
-
-
-
-    // POST Delete
-
-    [HttpPost, ActionName("Delete")]
+    [HttpPost]
     [ValidateAntiForgeryToken]
-
-    public async Task<IActionResult> DeleteConfirmed(int id)
+    public async Task<IActionResult> Delete(int id)
     {
-
-        var customer =
-            await _context.Customers.FindAsync(id);
-
-
+        var customer = await _context.Customers.FindAsync(id);
 
         if (customer != null)
         {
             _context.Customers.Remove(customer);
-
             await _context.SaveChangesAsync();
         }
-
-
 
         return RedirectToAction(nameof(Index));
     }
 
-
-
-
+    // POST Delete
 
     private bool CustomerExists(int id)
     {

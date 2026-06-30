@@ -89,7 +89,7 @@ app.MapGet("/", context =>
 {
     if (context.User.Identity?.IsAuthenticated == true)
     {
-        context.Response.Redirect("/Home/Index");
+        context.Response.Redirect("/Customers");
     }
     else
     {
