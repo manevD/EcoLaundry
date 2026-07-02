@@ -54,7 +54,13 @@
             Завршени
 
         </a>
+        <a asp-action="Index"
+           asp-route-filter="delivered"
+           class="btn @(filter == "delivered" ? "btn-primary" : "btn-outline-primary")">
 
+            Подигнати
+
+        </a>
 
         <a asp-action="Index"
            asp-route-filter="all"

@@ -53,9 +53,14 @@ public class OrdersController : Controller
         {
             query =
                 query.Where(x =>
-                    x.Status == OrderStatus.Finished);
+                    x.Status == OrderStatus.Finished && !x.PickedUp);
         }
 
+        if (filter == "delivered")
+        {
+            query =
+               query.Where(x => x.PickedUp);
+        }
 
 
 
