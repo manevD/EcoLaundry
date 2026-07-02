@@ -21,11 +21,15 @@ public class CustomersController : Controller
     // GET: Customers
     public async Task<IActionResult> Index()
     {
+        if (!User.Identity?.IsAuthenticated ?? true)
+        {
+            return Redirect("/Identity/Account/Login");
+        }
+
         var customers = await _context.Customers
             .Include(x => x.Orders)
             .OrderByDescending(x => x.Id)
             .ToListAsync();
-
 
         return View(customers);
     }
