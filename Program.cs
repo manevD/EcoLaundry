@@ -6,33 +6,23 @@ using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Culture
+var culture = new CultureInfo("mk-MK");
+CultureInfo.DefaultThreadCurrentCulture = culture;
+CultureInfo.DefaultThreadCurrentUICulture = culture;
+
 // Connection String
-var connectionString =
-    builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? throw new InvalidOperationException(
-        "Connection string 'DefaultConnection' not found.");
-var culture =
-new CultureInfo("mk-MK");
-
-CultureInfo.DefaultThreadCurrentCulture =
-culture;
-
-CultureInfo.DefaultThreadCurrentUICulture =
-culture;
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
 // Database
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(
-        connectionString,
-        sqlOptions =>
-        {
-            sqlOptions.EnableRetryOnFailure(
-                maxRetryCount: 5,
-                maxRetryDelay: TimeSpan.FromSeconds(10),
-                errorNumbersToAdd: null);
-        }));
-builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+    options.UseSqlServer(connectionString, sqlOptions =>
+    {
+        sqlOptions.EnableRetryOnFailure();
+    }));
 
+builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 // Identity
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
@@ -48,17 +38,11 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
-
-// MVC
+// MVC + Razor Pages
 builder.Services.AddControllersWithViews();
-
-
-// REQUIRED FOR IDENTITY PAGES
 builder.Services.AddRazorPages();
 
-
 var app = builder.Build();
-
 
 // Pipeline
 if (app.Environment.IsDevelopment())
@@ -68,55 +52,38 @@ if (app.Environment.IsDevelopment())
 else
 {
     app.UseExceptionHandler("/Home/Error");
-
     app.UseHsts();
 }
-
 
 app.UseHttpsRedirection();
 
 app.UseRouting();
 
 app.UseAuthentication();
-
 app.UseAuthorization();
 
 app.MapStaticAssets();
 
-
-// Start page
-app.MapGet("/", context =>
+// Root URL
+app.MapGet("/", (HttpContext context) =>
 {
-    if (context.User.Identity?.IsAuthenticated == true)
-    {
-        context.Response.Redirect("/Customers");
-    }
-    else
-    {
-        context.Response.Redirect("/Identity/Account/Login");
-    }
-
+    context.Response.Redirect("/Identity/Account/Login");
     return Task.CompletedTask;
 });
 
-
-// MVC
+// MVC Controllers
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller}/{action=Index}/{id?}");
 
-
-// Identity Razor Pages
+// Razor Pages (Identity)
 app.MapRazorPages();
-
 
 // Create Admin
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-
     await CreateAdminWithRole.Create(services);
 }
-
 
 app.Run();
