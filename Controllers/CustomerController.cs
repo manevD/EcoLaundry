@@ -1,6 +1,5 @@
 ﻿using EcoLaundry.Data;
 using EcoLaundry.Entities;
-using EcoLaundry.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -21,11 +20,6 @@ public class CustomersController : Controller
     // GET: Customers
     public async Task<IActionResult> Index()
     {
-        if (!User.Identity?.IsAuthenticated ?? true)
-        {
-            return Redirect("/Identity/Account/Login");
-        }
-
         var customers = await _context.Customers
             .Include(x => x.Orders)
             .OrderByDescending(x => x.Id)
@@ -173,7 +167,15 @@ public class CustomersController : Controller
 
         return RedirectToAction(nameof(Index));
     }
-
+    public IActionResult Test()
+    {
+        return Content($"""
+Authenticated: {User.Identity?.IsAuthenticated}
+User: {User.Identity?.Name}
+Admin: {User.IsInRole("Admin")}
+Member: {User.IsInRole("Member")}
+""");
+    }
     // POST Delete
 
     private bool CustomerExists(int id)
