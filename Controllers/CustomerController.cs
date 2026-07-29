@@ -67,7 +67,20 @@ public class CustomersController : Controller
         if (!ModelState.IsValid)
             return View(customer);
 
+        var phone = customer.Phone.Trim();
+        var firstName = customer.FirstName.Trim().ToLower();
+        var lastName = customer.LastName.Trim().ToLower();
 
+        var exists = await _context.Customers.AnyAsync(c =>
+            c.Phone.Trim() == phone ||
+            (c.FirstName.Trim().ToLower() == firstName &&
+             c.LastName.Trim().ToLower() == lastName));
+
+        if (exists)
+        {
+            ModelState.AddModelError(string.Empty, "Клиентот веќе постои.");
+            return View(customer);
+        }
 
         customer.CreatedAt = DateTime.Now;
 

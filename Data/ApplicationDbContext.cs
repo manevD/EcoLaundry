@@ -33,7 +33,9 @@ namespace EcoLaundry.Data
                 .WithOne(x => x.Customer)
                 .HasForeignKey(x => x.CustomerId)
                 .OnDelete(DeleteBehavior.Cascade);
-
+            builder.Entity<Customer>()
+                   .HasIndex(x => x.Phone)
+                   .IsUnique();
             builder.Entity<Order>()
                 .HasMany(x => x.Items)
                 .WithOne(x => x.Order)
