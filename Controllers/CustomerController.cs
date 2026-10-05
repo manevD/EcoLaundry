@@ -1,4 +1,5 @@
-﻿using EcoLaundry.Data;
+﻿using ClosedXML.Excel;
+using EcoLaundry.Data;
 using EcoLaundry.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -37,7 +38,7 @@ public class CustomersController : Controller
 
         var customer = await _context.Customers
             .Include(x => x.Orders)
-                .ThenInclude(x => x.Items).ThenInclude(x=>x.LaundryCategory)
+                .ThenInclude(x => x.Items).ThenInclude(x => x.LaundryCategory)
             .FirstOrDefaultAsync(x => x.Id == id);
 
 
@@ -55,7 +56,83 @@ public class CustomersController : Controller
     {
         return View();
     }
+    public async Task<IActionResult> ExportCustomersExcel()
+    {
+        var customers = await _context.Customers
+            .OrderBy(c => c.LastName)
+            .ThenBy(c => c.FirstName)
+            .ToListAsync();
 
+        if (customers.Count == 0)
+        {
+            return BadRequest("Нема клиенти за export.");
+        }
+
+        using var workbook = new XLWorkbook();
+
+        var worksheet = workbook.Worksheets.Add("Клиенти");
+
+        // =====================================================
+        // HEADER
+        // =====================================================
+
+        worksheet.Cell(1, 1).Value = "First Name";
+        worksheet.Cell(1, 2).Value = "Last Name";
+        worksheet.Cell(1, 3).Value = "Phone";
+        worksheet.Cell(1, 4).Value = "Notes";
+
+        var header = worksheet.Range(1, 1, 1, 4);
+
+        header.Style.Font.Bold = true;
+
+        header.Style.Alignment.Horizontal =
+            XLAlignmentHorizontalValues.Center;
+
+        header.Style.Alignment.Vertical =
+            XLAlignmentVerticalValues.Center;
+
+        // =====================================================
+        // DATA
+        // =====================================================
+
+        int row = 2;
+
+        foreach (var customer in customers)
+        {
+            worksheet.Cell(row, 1).Value = customer.FirstName;
+            worksheet.Cell(row, 2).Value = customer.LastName;
+            worksheet.Cell(row, 3).Value = customer.Phone;
+            worksheet.Cell(row, 4).Value = customer.Notes ?? "";
+
+            row++;
+        }
+
+        // =====================================================
+        // FORMAT
+        // =====================================================
+
+        worksheet.Columns().AdjustToContents();
+
+        // Notes column
+        worksheet.Column(4).Width = 40;
+        worksheet.Column(4).Style.Alignment.WrapText = true;
+
+        // =====================================================
+        // RETURN FILE
+        // =====================================================
+
+        using var stream = new MemoryStream();
+
+        workbook.SaveAs(stream);
+
+        stream.Position = 0;
+
+        return File(
+            stream.ToArray(),
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            $"Customers_{DateTime.Now:yyyy-MM-dd_HH-mm}.xlsx"
+        );
+    }
 
     // POST: Customers/Create
 
