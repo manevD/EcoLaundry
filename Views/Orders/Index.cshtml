@@ -1,459 +1,265 @@
-﻿@using EcoLaundry.Entities
+﻿
+@using EcoLaundry.Entities
 @model IEnumerable<Order>
 
 @{
     ViewData["Title"] = "Нарачки";
 
-
-string filter = ViewBag.Filter ?? "active";
-
-    var orders =
-        Model ?? Enumerable.Empty<Order>();
-
-
+    string filter = ViewBag.Filter as string ?? "active";
+    var orders = Model ?? Enumerable.Empty<Order>();
 }
 
 <div class="container-fluid">
 
-    
     <!-- HEADER -->
-
     <div class="d-flex justify-content-between align-items-center mb-3">
-
-        <h4 class="mb-0">
-            Нарачки
-        </h4>
-
+        <h4 class="mb-0">Нарачки</h4>
 
         <div class="d-flex gap-2">
-
-            <!-- EXCEL -->
-
-            <a asp-action="ExportExcel"
+            <a asp-controller="Orders"
+               asp-action="ExportExcel"
                asp-route-filter="@filter"
                id="exportExcel"
                class="btn btn-outline-success btn-sm">
-
                 📊 Excel
-
             </a>
 
-
-            <!-- NEW -->
-
-            <a asp-action="Create"
+            <a asp-controller="Orders"
+               asp-action="Create"
                class="btn btn-primary btn-sm">
-
                 + Нова
-
             </a>
-
         </div>
-
     </div>
 
-
     <!-- FILTERS -->
-
-    <div class="btn-group w-100 mb-3">
-
-
-        <!-- ACTIVE -->
+    <div class="btn-group w-100 mb-3" role="group">
 
         <a asp-action="Index"
            asp-route-filter="active"
-           class="btn @(filter == "active"
-                      ? "btn-primary"
-                      : "btn-outline-primary")">
-
+           class="btn @(filter == "active" ? "btn-primary" : "btn-outline-primary")">
             Активни
-
         </a>
-
-
-        <!-- FINISHED -->
 
         <a asp-action="Index"
            asp-route-filter="finished"
-           class="btn @(filter == "finished"
-                      ? "btn-primary"
-                      : "btn-outline-primary")">
-
+           class="btn @(filter == "finished" ? "btn-primary" : "btn-outline-primary")">
             Завршени
-
         </a>
-
-
-        <!-- PICKED UP -->
 
         <a asp-action="Index"
            asp-route-filter="delivered"
-           class="btn @(filter == "delivered"
-                      ? "btn-primary"
-                      : "btn-outline-primary")">
-
+           class="btn @(filter == "delivered" ? "btn-primary" : "btn-outline-primary")">
             Подигнати
-
         </a>
-
-
-        <!-- CANCELLED -->
 
         <a asp-action="Index"
            asp-route-filter="cancelled"
-           class="btn @(filter == "cancelled"
-                      ? "btn-primary"
-                      : "btn-outline-primary")">
-
+           class="btn @(filter == "cancelled" ? "btn-primary" : "btn-outline-primary")">
             Откажани
-
         </a>
-
-
-        <!-- ALL -->
 
         <a asp-action="Index"
            asp-route-filter="all"
-           class="btn @(filter == "all"
-                      ? "btn-primary"
-                      : "btn-outline-primary")">
-
+           class="btn @(filter == "all" ? "btn-primary" : "btn-outline-primary")">
             Сите
-
         </a>
 
     </div>
 
-
     <!-- SEARCH -->
-
     <input type="text"
            id="orderSearch"
            class="form-control form-control-lg mb-3"
            placeholder="🔍 Барај клиент, телефон, облека..." />
 
-
-    <!-- NO ORDERS -->
-    @if (!orders.Any())
-    {
-        <div class="alert alert-info text-center">
-
-            Нема нарачки
-
-        </div>
-    }
-
-
     <!-- ORDERS -->
-    @foreach (var order in orders)
-    {
-
-        <div class="card shadow-sm mb-3 order-card"
-             data-id="@order.Id">
-
-            <div class="card-body">
-
-
-                <!-- HEADER -->
-
-                <div class="d-flex justify-content-between">
-
-
-                    <div>
-
-
-                        <h5 class="mb-1">
-
-                            #@(order.OrderNumber ?? "-")
-
-                        </h5>
-
-
-                        <strong>
-
-                            @(order.Customer != null
-                                ? $"{order.Customer.FirstName} {order.Customer.LastName}"
-                                : "Непознат клиент")
-
-                        </strong>
-
-
-                        <br />
-
-
-                        @if (order.Customer != null)
-                        {
-
-                            <small class="text-muted">
-
-                                📞 @order.Customer.Phone
-
-                            </small>
-
-                        }
-
-                    </div>
-
-
-                    <!-- PRICE -->
-
-                    <div class="text-end">
-
-
-                        @if (order.IsExpress)
-                        {
-
-                            <span class="badge bg-danger">
-
-                                🔥 EXPRESS
-
-                            </span>
-
-                        }
-
-
-                        @if (order.PickedUp)
-                        {
-
-                            <span class="badge bg-secondary">
-
-                                Подигнато
-
-                            </span>
-
-                        }
-
-
-                        <div class="mt-2">
-
-                            <strong>
-
-                                @(order.TotalPrice.HasValue
-                                    ? order.TotalPrice + " ден"
-                                    : "-")
-
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <hr class="my-2" />
-
-
-                <!-- ITEMS -->
-                @foreach (var item in order.Items ?? Enumerable.Empty<OrderItem>())
-                {
-
-                    <div class="d-flex justify-content-between">
-
-
-                        <div>
-
-                            ✓ @(item.LaundryCategory?.Name
-                                                        ?? "Непознато")
-
-
-                            <span class="badge bg-secondary">
-
-                                x @item.Quantity
-
-                            </span>
-
-                        </div>
-
-
-                        <div class="text-end">
-
-
-                            <strong>
-
-                                @(item.Quantity * item.Price) ден
-
-                            </strong>
-
-
-                            <br />
-
-
-                            <small class="text-muted">
-
-                                @item.Quantity x @item.Price
-
-                            </small>
-
-                        </div>
-
-                    </div>
-
-                }
-
-
-                <hr class="my-2" />
-
-
-                <!-- DATE + STATUS -->
-
-                <div class="d-flex justify-content-between">
-
-
-                    <span>
-
-                        📅 @order.ReceivedDate.ToString("dd.MM.yyyy HH:mm")
-
-                    </span>
-
-
-                    <span>
-
-
-                        @switch (order.Status)
-                        {
-
-                            case OrderStatus.Received:
-
-                                <span class="badge bg-warning">
-
-                                    Примено
-
-                                </span>
-
-                                break;
-
-
-                            case OrderStatus.InProgress:
-
-                                <span class="badge bg-info">
-
-                                    Во обработка
-
-                                </span>
-
-                                break;
-
-
-                            case OrderStatus.Finished:
-
-                                <span class="badge bg-success">
-
-                                    Завршено
-
-                                </span>
-
-                                break;
-
-
-                            case OrderStatus.Cancelled:
-
-                                <span class="badge bg-danger">
-
-                                    Откажано
-
-                                </span>
-
-                                break;
-
-                        }
-
-
-                    </span>
-
-                </div>
-
-
-                <!-- BUTTONS -->
-
-                <div class="d-flex gap-2 mt-3">
-
-
-                    <a asp-action="Details"
-                       asp-route-id="@order.Id"
-                       class="btn btn-outline-primary btn-sm flex-fill">
-
-                        Детали
-
-                    </a>
-
-
-                    <a asp-action="Edit"
-                       asp-route-id="@order.Id"
-                       class="btn btn-outline-secondary btn-sm flex-fill">
-
-                        Измени
-
-                    </a>
-
-                </div>
-
-
+    <div id="ordersContainer">
+
+        @if (!orders.Any())
+        {
+            <div class="alert alert-info text-center">
+                Нема нарачки во оваа категорија.
             </div>
+        }
+        else
+        {
+            @foreach (var order in orders)
+            {
+                <div class="card shadow-sm mb-3 order-card"
+                     data-id="@order.Id">
 
-        </div>
+                    <div class="card-body">
 
-    }
-    
+                        <!-- CUSTOMER AND PRICE -->
+                        <div class="d-flex justify-content-between gap-3">
+                            <div>
+                                <h5 class="mb-1">
+                                    #@(order.OrderNumber ?? "-")
+                                </h5>
 
-</div>
-@section Scripts {
+                                <strong>
+                                    @(order.Customer != null
+                                        ? $"{order.Customer.FirstName} {order.Customer.LastName}"
+                                        : "Непознат клиент")
+                                </strong>
 
-    <script>
+                                @if (order.Customer != null)
+                                {
+                                    <br />
+                                    <small class="text-muted">
+                                        📞 @(order.Customer.Phone ?? "")
+                                    </small>
+                                }
+                            </div>
 
-        attachSearch(
-            "orderSearch",
-            ".order-card"
-        );
-        const exportExcel =
-            document.getElementById("exportExcel");
+                            <div class="text-end">
+                                @if (order.IsExpress)
+                                {
+                                    <span class="badge bg-danger">🔥 EXPRESS</span>
+                                }
 
+                                @if (order.PickedUp)
+                                {
+                                    <span class="badge bg-secondary">Подигнато</span>
+                                }
 
-        if (exportExcel) {
+                                <div class="mt-2">
+                                    <strong>
+                                        @(order.TotalPrice.HasValue
+                                            ? $"{order.TotalPrice.Value:N0} ден"
+                                            : "-")
+                                    </strong>
+                                </div>
+                            </div>
+                        </div>
 
-            exportExcel.addEventListener("click", function (e) {
+                        <hr class="my-2" />
 
-                e.preventDefault();
+                        <!-- ITEMS -->
+                        @foreach (var item in order.Items ?? Enumerable.Empty<OrderItem>())
+                        {
+                            <div class="d-flex justify-content-between gap-3 mb-1">
+                                <div>
+                                    ✓ @(item.LaundryCategory?.Name ?? "Непознато")
 
+                                    <span class="badge bg-secondary">
+                                        x @item.Quantity
+                                    </span>
+                                </div>
 
-                const visibleIds = [];
-
-
-                document
-                    .querySelectorAll(".order-card")
-                    .forEach(function (card) {
-
-                        if (card.style.display !== "none") {
-
-                            const id =
-                                card.dataset.id;
-
-                            if (id) {
-
-                                visibleIds.push(id);
-
-                            }
-
+                                <div class="text-end">
+                                    <strong>
+                                        @(item.Quantity * item.Price) ден
+                                    </strong>
+                                    <br />
+                                    <small class="text-muted">
+                                        @item.Quantity x @item.Price
+                                    </small>
+                                </div>
+                            </div>
                         }
 
-                    });
+                        <hr class="my-2" />
 
+                        <!-- DATE AND STATUS -->
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <span>
+                                📅 @order.ReceivedDate.ToString("dd.MM.yyyy HH:mm")
+                            </span>
 
-                if (visibleIds.length === 0) {
+                            <span>
+                                @switch (order.Status)
+                                {
+                                    case OrderStatus.Received:
+                                        <span class="badge bg-warning text-dark">Примено</span>
+                                        break;
 
-                    alert("Нема нарачки за export.");
+                                    case OrderStatus.InProgress:
+                                        <span class="badge bg-info text-dark">Во обработка</span>
+                                        break;
 
-                    return;
-                    
-                }
-                const url =  new URL(this.href);
-                url.searchParams.set(
-                    "ids",
-                    visibleIds.join(",")
-                );
+                                    case OrderStatus.Finished:
+                                        <span class="badge bg-success">Завршено</span>
+                                        break;
 
-                window.location.href = url.toString();
-            });
+                                    case OrderStatus.Cancelled:
+                                        <span class="badge bg-danger">Откажано</span>
+                                        break;
+                                }
+                            </span>
+                        </div>
+
+                        <!-- ACTIONS -->
+                        <div class="d-flex gap-2 mt-3">
+                            <a asp-action="Details"
+                               asp-route-id="@order.Id"
+                               class="btn btn-outline-primary btn-sm flex-fill">
+                                Детали
+                            </a>
+
+                            <a asp-action="Edit"
+                               asp-route-id="@order.Id"
+                               class="btn btn-outline-secondary btn-sm flex-fill">
+                                Измени
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+            }
         }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const searchInput = document.getElementById("orderSearch");
+            const exportButton = document.getElementById("exportExcel");
+            const orderCards = Array.from(
+                document.querySelectorAll(".order-card")
+            );
+
+            // SEARCH
+            if (searchInput) {
+                searchInput.addEventListener("input", function () {
+                    const searchText = this.value
+                        .toLocaleLowerCase()
+                        .trim();
+
+                    orderCards.forEach(function (card) {
+                        const matches = card.innerText
+                            .toLocaleLowerCase()
+                            .includes(searchText);
+
+                        card.style.display = matches ? "" : "none";
+                    });
+                });
+            }
+
+            // EXPORT VISIBLE ORDERS
+            if (exportButton) {
+                exportButton.addEventListener("click", function (event) {
+                    const visibleIds = orderCards
+                        .filter(card => card.style.display !== "none")
+                        .map(card => card.dataset.id)
+                        .filter(id => id);
+
+                    if (visibleIds.length === 0) {
+                        event.preventDefault();
+                        alert("Нема нарачки за Excel export.");
+                        return;
+                    }
+
+                    event.preventDefault();
+
+                    const url = new URL(this.href, window.location.origin);
+                    url.searchParams.set("ids", visibleIds.join(","));
+
+                    window.location.href = url.toString();
+                });
+            }
+        });
     </script>
 }
