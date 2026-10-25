@@ -8,171 +8,120 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EcoLaundry.Controllers;
 
-
 [Authorize(Roles = "Admin,Member")]
 public class OrdersController : Controller
 {
     private readonly ApplicationDbContext _context;
-
 
     public OrdersController(ApplicationDbContext context)
     {
         _context = context;
     }
 
-
-
     // =============================
     // INDEX
     // =============================
 
-
     public async Task<IActionResult> Index(string filter = "active")
     {
-        var query =
-            _context.Orders
-
+        var query = _context.Orders
             .Include(x => x.Customer)
-
             .Include(x => x.Items)
                 .ThenInclude(x => x.LaundryCategory)
-
             .AsQueryable();
 
-
-
-        if (filter == "active")
+        switch (filter?.ToLowerInvariant())
         {
-            query =
-                query.Where(x =>
+            case "active":
+                query = query.Where(x =>
                     x.Status != OrderStatus.Finished);
+                break;
+
+            case "finished":
+                query = query.Where(x =>
+                    x.Status == OrderStatus.Finished &&
+                    !x.PickedUp);
+                break;
+
+            case "delivered":
+                query = query.Where(x => x.PickedUp);
+                break;
+
+            case "cancelled":
+                query = query.Where(x =>
+                    x.Status == OrderStatus.Cancelled &&
+                    !x.PickedUp);
+                break;
+
+            case "all":
+                // Без филтер: прикажи ги сите нарачки.
+                break;
+
+            default:
+                filter = "active";
+                query = query.Where(x =>
+                    x.Status != OrderStatus.Finished);
+                break;
         }
 
-
-
-        if (filter == "finished")
-        {
-            query =
-                query.Where(x =>
-                    x.Status == OrderStatus.Finished && !x.PickedUp);
-        }
-
-        if (filter == "delivered")
-        {
-            query =
-               query.Where(x => x.PickedUp);
-        }
-
-        if (filter == "cancelled")
-        {
-            query =
-                query.Where(x =>
-                    x.Status == OrderStatus.Cancelled && !x.PickedUp);
-        }
-
-        var orders =
-            await query
-
+        var orders = await query
             .OrderBy(x => x.Status == OrderStatus.Finished)
-
             .ThenByDescending(x => x.IsExpress)
-
             .ThenBy(x => x.ReceivedDate)
-
             .ToListAsync();
-
-
 
         ViewBag.Filter = filter;
 
-
-
         return View(orders);
     }
-
-
-
-
-
-
-
-
 
     // =============================
     // DETAILS
     // =============================
 
-
     public async Task<IActionResult> Details(int id)
     {
-        var order =
-            await _context.Orders
-
+        var order = await _context.Orders
             .Include(x => x.Customer)
-
             .Include(x => x.Items)
                 .ThenInclude(x => x.LaundryCategory)
-
             .FirstOrDefaultAsync(x => x.Id == id);
-
-
 
         if (order == null)
             return NotFound();
 
-
-
         return View(order);
     }
-
-
-
-
 
     // =============================
     // CREATE GET
     // =============================
 
-
     public async Task<IActionResult> Create(int? customerId)
     {
         if (customerId.HasValue)
         {
-            ViewBag.SelectedCustomer =
-          await _context.Customers
-        .Where(x => x.Id == customerId.Value)
-        .Select(x => new
-        {
-            Id = x.Id,
-
-            Display =
-                x.FirstName + " " +
-                x.LastName +
-                " - " +
-                x.Phone
-        })
-        .FirstOrDefaultAsync();
+            ViewBag.SelectedCustomer = await _context.Customers
+                .Where(x => x.Id == customerId.Value)
+                .Select(x => new
+                {
+                    Id = x.Id,
+                    Display = x.FirstName + " " +
+                              x.LastName + " - " +
+                              x.Phone
+                })
+                .FirstOrDefaultAsync();
         }
 
         await LoadData(true);
 
-
         var order = new Order
         {
-            CustomerId =
-                customerId ?? 0,
-
-
-            ReceivedDate =
-                DateTime.Now,
-
+            CustomerId = customerId ?? 0,
+            ReceivedDate = DateTime.Now,
             ExpectedFinishDate = DateTime.Now.AddDays(2),
-            Status =
-                OrderStatus.Received,
-
-
-            PaymentStatus =
-                PaymentStatus.Unpaid
+            Status = OrderStatus.Received,
+            PaymentStatus = PaymentStatus.Unpaid
         };
 
         return View(order);
@@ -182,82 +131,61 @@ public class OrdersController : Controller
     // CREATE POST
     // =============================
 
-
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(
-    Order order,
-    int[] categoryIds,
-    int[] quantities,
-    int[] prices)
+        Order order,
+        int[] categoryIds,
+        int[] quantities,
+        int[] prices)
     {
         ModelState.Remove("Customer");
         ModelState.Remove("OrderNumber");
 
-        if (!ModelState.IsValid || categoryIds == null || categoryIds.Length == 0)
+        if (!ModelState.IsValid ||
+            categoryIds == null ||
+            categoryIds.Length == 0)
         {
             await LoadData(true);
-
             return View(order);
         }
-        order.OrderNumber =
-            DateTime.Now.ToString("yyyyMMddHHmm");
 
-        order.Items =
-            new List<OrderItem>();
+        order.OrderNumber = DateTime.Now.ToString("yyyyMMddHHmm");
+        order.Items = new List<OrderItem>();
 
         for (int i = 0; i < categoryIds.Length; i++)
         {
-            order.Items.Add(
-                new OrderItem
-                {
-                    LaundryCategoryId = categoryIds[i],
-
-                    Quantity =
-                        quantities.Length > i
-                        ? quantities[i]
-                        : 1,
-
-                    Price =
-                        prices.Length > i
-                        ? prices[i]
-                        : 0
-                });
+            order.Items.Add(new OrderItem
+            {
+                LaundryCategoryId = categoryIds[i],
+                Quantity = quantities.Length > i
+                    ? quantities[i]
+                    : 1,
+                Price = prices.Length > i
+                    ? prices[i]
+                    : 0
+            });
         }
 
-        order.TotalPrice =
-      order.Items.Sum(x => x.Price * x.Quantity);
-
-
-
+        order.TotalPrice = order.Items.Sum(x => x.Price * x.Quantity);
 
         _context.Orders.Add(order);
 
-
-
         await _context.SaveChangesAsync();
-
-
-
 
         return RedirectToAction(
             nameof(Details),
             new { id = order.Id });
     }
 
-
     // =============================
     // EDIT GET
     // =============================
 
-
     public async Task<IActionResult> Edit(int id)
     {
-        var order =
-            await _context.Orders
-
+        var order = await _context.Orders
             .Include(x => x.Items)
-
             .FirstOrDefaultAsync(x => x.Id == id);
 
         if (order == null)
@@ -268,11 +196,6 @@ public class OrdersController : Controller
         return View(order);
     }
 
-
-
-
-
-
     // =============================
     // EDIT POST
     // =============================
@@ -280,158 +203,89 @@ public class OrdersController : Controller
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(
-    int id,
-    Order order,
-    int[] categoryIds,
-    int[] quantities,
-    int[] prices)
+        int id,
+        Order order,
+        int[] categoryIds,
+        int[] quantities,
+        int[] prices)
     {
         if (id != order.Id)
             return NotFound();
 
-        var dbOrder =
-            await _context.Orders
+        var dbOrder = await _context.Orders
             .Include(x => x.Items)
             .FirstAsync(x => x.Id == id);
+
         if (order.PickedUp)
         {
             dbOrder.Status = OrderStatus.Finished;
         }
         else
         {
-            dbOrder.Status =
-         order.Status;
+            dbOrder.Status = order.Status;
         }
 
-
-
-        dbOrder.PaymentStatus =
-            order.PaymentStatus;
-
-
-        dbOrder.IsExpress =
-            order.IsExpress;
-
-
-        dbOrder.CustomerContacted =
-            order.CustomerContacted;
-
-
-        dbOrder.PickedUp =
-            order.PickedUp;
-
-
-        dbOrder.ExpectedFinishDate =
-            order.ExpectedFinishDate;
-
-
-        dbOrder.FinishedDate =
-            order.FinishedDate;
-
-
-        dbOrder.Notes =
-            order.Notes;
-
-
-
-
-
+        dbOrder.PaymentStatus = order.PaymentStatus;
+        dbOrder.IsExpress = order.IsExpress;
+        dbOrder.CustomerContacted = order.CustomerContacted;
+        dbOrder.PickedUp = order.PickedUp;
+        dbOrder.ExpectedFinishDate = order.ExpectedFinishDate;
+        dbOrder.FinishedDate = order.FinishedDate;
+        dbOrder.Notes = order.Notes;
 
         // REMOVE OLD ITEMS
-
-
         dbOrder.Items.Clear();
 
         // ADD NEW ITEMS
         for (int i = 0; i < categoryIds.Length; i++)
         {
-            dbOrder.Items.Add(
-                new OrderItem
-                {
-                    LaundryCategoryId =
-                        categoryIds[i],
-                    Quantity =
-                        quantities.Length > i
-                        ? quantities[i]
-                        : 1,
-
-                    Price =
-                        prices.Length > i
-                        ? prices[i]
-                        : 0
-                });
-
+            dbOrder.Items.Add(new OrderItem
+            {
+                LaundryCategoryId = categoryIds[i],
+                Quantity = quantities.Length > i
+                    ? quantities[i]
+                    : 1,
+                Price = prices.Length > i
+                    ? prices[i]
+                    : 0
+            });
         }
-        dbOrder.TotalPrice =
-            dbOrder.Items.Sum(x => x.Price * x.Quantity);
 
-
-
-
+        dbOrder.TotalPrice = dbOrder.Items.Sum(x => x.Price * x.Quantity);
 
         await _context.SaveChangesAsync();
-
-
-
-
 
         return RedirectToAction(
             nameof(Details),
             new { id });
     }
 
-
-
-
-
-
-
-
-
-
     // =============================
     // HELPERS
     // =============================
 
-
-
     private async Task LoadData(bool loadCustomers)
     {
-
         if (loadCustomers)
         {
-            ViewBag.Customers =
-            await _context.Customers
-
-            .OrderBy(x => x.FirstName)
-
-            .Select(x => new
-            {
-
-                x.Id,
-
-
-                Display =
-                    x.FirstName +
-                    " " +
-                    x.LastName +
-                    " - " +
-                    x.Phone
-
-            })
-
-            .ToListAsync();
-
+            ViewBag.Customers = await _context.Customers
+                .OrderBy(x => x.FirstName)
+                .Select(x => new
+                {
+                    x.Id,
+                    Display = x.FirstName + " " +
+                              x.LastName + " - " +
+                              x.Phone
+                })
+                .ToListAsync();
         }
-        ViewBag.Categories =
-           await _context.LaundryCategories
 
-           .Where(x => x.Active)
-
-           .OrderBy(x => x.Name)
-
-           .ToListAsync();
+        ViewBag.Categories = await _context.LaundryCategories
+            .Where(x => x.Active)
+            .OrderBy(x => x.Name)
+            .ToListAsync();
     }
+
     private string LatinToCyrillic(string text)
     {
         if (string.IsNullOrWhiteSpace(text))
@@ -449,7 +303,6 @@ public class OrdersController : Controller
             .Replace("kj", "ќ")
             .Replace("dz", "ѕ")
             .Replace("dj", "џ")
-
             .Replace("a", "а")
             .Replace("b", "б")
             .Replace("v", "в")
@@ -473,6 +326,7 @@ public class OrdersController : Controller
             .Replace("h", "х")
             .Replace("c", "ц");
     }
+
     private string CyrillicToLatin(string text)
     {
         if (string.IsNullOrWhiteSpace(text))
@@ -515,20 +369,21 @@ public class OrdersController : Controller
             ['ш'] = "sh"
         };
 
-
         var result = "";
 
         foreach (var c in text)
         {
-            result +=
-                map.TryGetValue(c, out var value)
-                    ? value
-                    : c.ToString();
+            result += map.TryGetValue(c, out var value)
+                ? value
+                : c.ToString();
         }
-
 
         return result;
     }
+
+    // =============================
+    // EXPORT EXCEL
+    // =============================
 
     public async Task<IActionResult> ExportExcel(
         string filter = "active",
@@ -539,7 +394,8 @@ public class OrdersController : Controller
             .Include(o => o.Items)
                 .ThenInclude(i => i.LaundryCategory);
 
-        // Ако View испратил ID-вредности, извези ги само тие нарачки.
+        // Ако има IDs од пребарувањето,
+        // извези ги само тие нарачки.
         if (!string.IsNullOrWhiteSpace(ids))
         {
             var orderIds = ids
@@ -553,13 +409,14 @@ public class OrdersController : Controller
                 .ToList();
 
             if (orderIds.Count == 0)
-                return BadRequest("Нема валидни нарачки за Excel export.");
+                return BadRequest(
+                    "Нема валидни нарачки за Excel export.");
 
             query = query.Where(o => orderIds.Contains(o.Id));
         }
         else
         {
-            // Исти филтри како во Index().
+            // Без IDs: користи го избраниот филтер.
             switch (filter?.ToLowerInvariant())
             {
                 case "active":
@@ -584,6 +441,7 @@ public class OrdersController : Controller
                     break;
 
                 case "all":
+                    // Сите нарачки, без ограничување.
                     break;
 
                 default:
@@ -606,24 +464,27 @@ public class OrdersController : Controller
 
         string[] headers =
         {
-        "Број",
-        "Клиент",
-        "Телефон",
-        "Примено",
-        "Очекувано",
-        "Завршено",
-        "Статус",
-        "Подигнато",
-        "Express",
-        "Ставки",
-        "Вкупно",
-        "Забелешка"
-    };
+            "Број",
+            "Клиент",
+            "Телефон",
+            "Примено",
+            "Очекувано",
+            "Завршено",
+            "Статус",
+            "Подигнато",
+            "Express",
+            "Ставки",
+            "Вкупно",
+            "Забелешка"
+        };
 
         for (int col = 0; col < headers.Length; col++)
+        {
             worksheet.Cell(1, col + 1).Value = headers[col];
+        }
 
         var header = worksheet.Range(1, 1, 1, headers.Length);
+
         header.Style.Font.Bold = true;
         header.Style.Alignment.Horizontal =
             XLAlignmentHorizontalValues.Center;
@@ -634,13 +495,16 @@ public class OrdersController : Controller
 
         foreach (var order in orders)
         {
-            worksheet.Cell(row, 1).Value = order.OrderNumber ?? "-";
+            worksheet.Cell(row, 1).Value =
+                order.OrderNumber ?? "-";
 
-            worksheet.Cell(row, 2).Value = order.Customer != null
-                ? $"{order.Customer.FirstName} {order.Customer.LastName}"
-                : "Непознат клиент";
+            worksheet.Cell(row, 2).Value =
+                order.Customer != null
+                    ? $"{order.Customer.FirstName} {order.Customer.LastName}"
+                    : "Непознат клиент";
 
-            worksheet.Cell(row, 3).Value = order.Customer?.Phone ?? "";
+            worksheet.Cell(row, 3).Value =
+                order.Customer?.Phone ?? "";
 
             worksheet.Cell(row, 4).Value = order.ReceivedDate;
             worksheet.Cell(row, 4).Style.DateFormat.Format =
@@ -650,6 +514,7 @@ public class OrdersController : Controller
             {
                 worksheet.Cell(row, 5).Value =
                     order.ExpectedFinishDate.Value;
+
                 worksheet.Cell(row, 5).Style.DateFormat.Format =
                     "dd.MM.yyyy HH:mm";
             }
@@ -658,6 +523,7 @@ public class OrdersController : Controller
             {
                 worksheet.Cell(row, 6).Value =
                     order.FinishedDate.Value;
+
                 worksheet.Cell(row, 6).Style.DateFormat.Format =
                     "dd.MM.yyyy HH:mm";
             }
@@ -671,8 +537,11 @@ public class OrdersController : Controller
                 _ => order.Status.ToString()
             };
 
-            worksheet.Cell(row, 8).Value = order.PickedUp ? "ДА" : "НЕ";
-            worksheet.Cell(row, 9).Value = order.IsExpress ? "ДА" : "НЕ";
+            worksheet.Cell(row, 8).Value =
+                order.PickedUp ? "ДА" : "НЕ";
+
+            worksheet.Cell(row, 9).Value =
+                order.IsExpress ? "ДА" : "НЕ";
 
             var items = order.Items?
                 .Select(item =>
@@ -680,9 +549,14 @@ public class OrdersController : Controller
                     $"x{item.Quantity} @ {item.Price} ден")
                 ?? Enumerable.Empty<string>();
 
-            worksheet.Cell(row, 10).Value = string.Join(", ", items);
-            worksheet.Cell(row, 11).Value = order.TotalPrice ?? 0;
-            worksheet.Cell(row, 12).Value = order.Notes ?? "";
+            worksheet.Cell(row, 10).Value =
+                string.Join(", ", items);
+
+            worksheet.Cell(row, 11).Value =
+                order.TotalPrice ?? 0;
+
+            worksheet.Cell(row, 12).Value =
+                order.Notes ?? "";
 
             row++;
         }
@@ -712,6 +586,7 @@ public class OrdersController : Controller
         worksheet.Range(1, 1, row - 1, 12).SetAutoFilter();
 
         using var stream = new MemoryStream();
+
         workbook.SaveAs(stream);
         stream.Position = 0;
 
@@ -733,5 +608,4 @@ public class OrdersController : Controller
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             fileName);
     }
-
 }

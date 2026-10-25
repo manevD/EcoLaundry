@@ -116,12 +116,16 @@
                             <div class="text-end">
                                 @if (order.IsExpress)
                                 {
-                                    <span class="badge bg-danger">🔥 EXPRESS</span>
+                                    <span class="badge bg-danger">
+                                        🔥 EXPRESS
+                                    </span>
                                 }
 
                                 @if (order.PickedUp)
                                 {
-                                    <span class="badge bg-secondary">Подигнато</span>
+                                    <span class="badge bg-secondary">
+                                        Подигнато
+                                    </span>
                                 }
 
                                 <div class="mt-2">
@@ -172,19 +176,27 @@
                                 @switch (order.Status)
                                 {
                                     case OrderStatus.Received:
-                                        <span class="badge bg-warning text-dark">Примено</span>
+                                        <span class="badge bg-warning text-dark">
+                                            Примено
+                                        </span>
                                         break;
 
                                     case OrderStatus.InProgress:
-                                        <span class="badge bg-info text-dark">Во обработка</span>
+                                        <span class="badge bg-info text-dark">
+                                            Во обработка
+                                        </span>
                                         break;
 
                                     case OrderStatus.Finished:
-                                        <span class="badge bg-success">Завршено</span>
+                                        <span class="badge bg-success">
+                                            Завршено
+                                        </span>
                                         break;
 
                                     case OrderStatus.Cancelled:
-                                        <span class="badge bg-danger">Откажано</span>
+                                        <span class="badge bg-danger">
+                                            Откажано
+                                        </span>
                                         break;
                                 }
                             </span>
@@ -217,6 +229,7 @@
         document.addEventListener("DOMContentLoaded", function () {
             const searchInput = document.getElementById("orderSearch");
             const exportButton = document.getElementById("exportExcel");
+
             const orderCards = Array.from(
                 document.querySelectorAll(".order-card")
             );
@@ -238,24 +251,50 @@
                 });
             }
 
-            // EXPORT VISIBLE ORDERS
+            // EXPORT EXCEL
             if (exportButton) {
                 exportButton.addEventListener("click", function (event) {
+                    event.preventDefault();
+
+                    const url = new URL(
+                        this.href,
+                        window.location.origin
+                    );
+
+                    const searchText = (
+                        searchInput?.value || ""
+                    ).trim();
+
+                    // Нема пребарување:
+                    // контролерот ги извезува сите записи од избраниот филтер.
+                    if (searchText === "") {
+                        url.searchParams.delete("ids");
+                        window.location.href = url.toString();
+                        return;
+                    }
+
+                    // Има пребарување:
+                    // извези ги само видливите нарачки.
                     const visibleIds = orderCards
-                        .filter(card => card.style.display !== "none")
-                        .map(card => card.dataset.id)
-                        .filter(id => id);
+                        .filter(function (card) {
+                            return getComputedStyle(card).display !== "none";
+                        })
+                        .map(function (card) {
+                            return card.dataset.id;
+                        })
+                        .filter(function (id) {
+                            return id && id.trim() !== "";
+                        });
 
                     if (visibleIds.length === 0) {
-                        event.preventDefault();
                         alert("Нема нарачки за Excel export.");
                         return;
                     }
 
-                    event.preventDefault();
-
-                    const url = new URL(this.href, window.location.origin);
-                    url.searchParams.set("ids", visibleIds.join(","));
+                    url.searchParams.set(
+                        "ids",
+                        visibleIds.join(",")
+                    );
 
                     window.location.href = url.toString();
                 });
