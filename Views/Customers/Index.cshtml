@@ -84,7 +84,6 @@
     <div class="table-responsive d-none d-md-block">
         <table class="table table-hover align-middle"
                id="customersTable">
-
             <thead>
                 <tr>
                     <th>Име</th>
@@ -172,8 +171,8 @@
                 <div class="alert alert-danger mb-0">
                     <strong>Внимание!</strong><br />
                     Со бришењето на клиентот може да се избришат
-                    и неговите нарачки, зависно од поставените
-                    правила во базата. Оваа акција не може да се врати.
+                    и неговите нарачки, зависно од правилата во базата.
+                    Оваа акција не може да се врати.
                 </div>
             </div>
 
@@ -200,24 +199,30 @@
     <script>
         document.addEventListener("DOMContentLoaded", function () {
 
-            // SEARCH
+            // =========================================
+            // SEARCH: кирилица и латиница
+            // =========================================
+
             const searchInput = document.getElementById("searchInput");
 
-            function filterCustomers() {
-                const searchText = (searchInput?.value || "")
+            function normalizeText(value) {
+                return (value || "")
                     .toLocaleLowerCase()
+                    .normalize("NFC")
                     .trim();
+            }
+
+            function filterCustomers() {
+                const searchText = normalizeText(searchInput?.value);
 
                 document.querySelectorAll(".customer-card").forEach(function (card) {
-                    card.style.display = card.innerText
-                        .toLocaleLowerCase()
-                        .includes(searchText) ? "" : "none";
+                    const text = normalizeText(card.innerText);
+                    card.style.display = text.includes(searchText) ? "" : "none";
                 });
 
                 document.querySelectorAll("#customersTable tbody tr").forEach(function (row) {
-                    row.style.display = row.innerText
-                        .toLocaleLowerCase()
-                        .includes(searchText) ? "" : "none";
+                    const text = normalizeText(row.innerText);
+                    row.style.display = text.includes(searchText) ? "" : "none";
                 });
             }
 
@@ -225,13 +230,15 @@
                 searchInput.addEventListener("input", filterCustomers);
             }
 
+            // =========================================
             // DELETE MODAL
+            // =========================================
+
             const deleteModal = document.getElementById("deleteModal");
 
             if (deleteModal) {
                 deleteModal.addEventListener("show.bs.modal", function (event) {
                     const button = event.relatedTarget;
-
                     if (!button) return;
 
                     const id = button.dataset.id;
@@ -245,16 +252,30 @@
                 });
             }
 
+            // =========================================
             // EXCEL EXPORT
+            // =========================================
+
             const exportButton = document.getElementById("exportCustomersExcel");
 
             if (exportButton) {
                 exportButton.addEventListener("click", function (event) {
                     event.preventDefault();
 
+                    const searchText = (searchInput?.value || "").trim();
+
+                    const url = new URL(this.href, window.location.origin);
+
+                    // Празно пребарување = сите клиенти од базата.
+                    if (searchText === "") {
+                        url.searchParams.delete("ids");
+                        window.location.href = url.toString();
+                        return;
+                    }
+
+                    // Има пребарување = само видливите клиенти.
                     const visibleIds = new Set();
 
-                    // Собери ги видливите мобилни картички
                     document.querySelectorAll(".customer-card").forEach(function (card) {
                         if (getComputedStyle(card).display !== "none") {
                             const id = card.dataset.id;
@@ -262,7 +283,6 @@
                         }
                     });
 
-                    // Собери ги видливите редови од desktop табелата
                     document.querySelectorAll("#customersTable tbody tr").forEach(function (row) {
                         if (getComputedStyle(row).display !== "none") {
                             const id = row.dataset.id;
@@ -275,8 +295,10 @@
                         return;
                     }
 
-                    const url = new URL(this.href, window.location.origin);
-                    url.searchParams.set("ids", Array.from(visibleIds).join(","));
+                    url.searchParams.set(
+                        "ids",
+                        Array.from(visibleIds).join(",")
+                    );
 
                     window.location.href = url.toString();
                 });
