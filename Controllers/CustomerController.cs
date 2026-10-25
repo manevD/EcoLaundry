@@ -57,6 +57,7 @@ public class CustomersController : Controller
         return View();
     }
 
+
     public async Task<IActionResult> ExportCustomersExcel()
     {
         var customers = await _context.Customers
@@ -70,6 +71,17 @@ public class CustomersController : Controller
             return BadRequest("Нема клиенти за export.");
         }
 
+        // Број на нарачки за секој клиент
+        var orderCounts = await _context.Orders
+            .AsNoTracking()
+            .GroupBy(o => o.CustomerId)
+            .Select(g => new
+            {
+                CustomerId = g.Key,
+                OrderCount = g.Count()
+            })
+            .ToDictionaryAsync(x => x.CustomerId, x => x.OrderCount);
+
         using var workbook = new XLWorkbook();
 
         var worksheet = workbook.Worksheets.Add("Клиенти");
@@ -79,8 +91,9 @@ public class CustomersController : Controller
         worksheet.Cell(1, 2).Value = "Презиме";
         worksheet.Cell(1, 3).Value = "Телефон";
         worksheet.Cell(1, 4).Value = "Забелешки";
+        worksheet.Cell(1, 5).Value = "Број на нарачки";
 
-        var header = worksheet.Range(1, 1, 1, 4);
+        var header = worksheet.Range(1, 1, 1, 5);
 
         header.Style.Font.Bold = true;
         header.Style.Alignment.Horizontal =
@@ -88,8 +101,7 @@ public class CustomersController : Controller
         header.Style.Alignment.Vertical =
             XLAlignmentVerticalValues.Center;
 
-        header.Style.Fill.BackgroundColor =
-            XLColor.LightBlue;
+        header.Style.Fill.BackgroundColor = XLColor.LightBlue;
 
         // DATA
         int row = 2;
@@ -108,6 +120,11 @@ public class CustomersController : Controller
             worksheet.Cell(row, 4).Value =
                 customer.Notes ?? "";
 
+            worksheet.Cell(row, 5).Value =
+                orderCounts.TryGetValue(customer.Id, out var count)
+                    ? count
+                    : 0;
+
             row++;
         }
 
@@ -118,7 +135,9 @@ public class CustomersController : Controller
         worksheet.Column(2).Width = 25;
         worksheet.Column(3).Width = 20;
         worksheet.Column(4).Width = 40;
+        worksheet.Column(5).Width = 22;
 
+        // Телефоните да се прикажуваат како текст
         worksheet.Column(3).Style.NumberFormat.Format = "@";
 
         worksheet.Column(4).Style.Alignment.WrapText = true;
@@ -129,10 +148,10 @@ public class CustomersController : Controller
         worksheet.SheetView.FreezeRows(1);
 
         // AUTO FILTER
-        worksheet.Range(1, 1, row - 1, 4).SetAutoFilter();
+        worksheet.Range(1, 1, row - 1, 5).SetAutoFilter();
 
         // BORDERS
-        var dataRange = worksheet.Range(1, 1, row - 1, 4);
+        var dataRange = worksheet.Range(1, 1, row - 1, 5);
 
         dataRange.Style.Border.OutsideBorder =
             XLBorderStyleValues.Thin;
@@ -144,7 +163,6 @@ public class CustomersController : Controller
         using var stream = new MemoryStream();
 
         workbook.SaveAs(stream);
-
         stream.Position = 0;
 
         return File(
@@ -153,6 +171,7 @@ public class CustomersController : Controller
             $"Klienti_{DateTime.Now:yyyy-MM-dd_HH-mm}.xlsx"
         );
     }
+
 
 
     // POST: Customers/Create
