@@ -25,6 +25,7 @@ public class CreateAdminWithRole
 
         await CreateRoleIfNotExists("Admin");
         await CreateRoleIfNotExists("Member");
+        await CreateRoleIfNotExists("Worker");
 
 
         await CreateUserIfNotExists(
@@ -32,6 +33,10 @@ public class CreateAdminWithRole
             password: "admin123!",
             role: "Admin");
 
+        await CreateUserIfNotExists(
+           email: "worker@email.com",
+           password: "worker123!!",
+           role: "Worker");
 
         await CreateUserIfNotExists(
             email: "user@email.com",

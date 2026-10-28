@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 namespace EcoLaundry.Controllers;
 
 
-[Authorize(Roles = "Admin,Member")]
+[Authorize(Roles = "Admin")]
 public class StatisticsController : Controller
 {
     private readonly ApplicationDbContext _context;
